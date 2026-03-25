@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
-import { TrendingUp, BarChart3, Brain, Shield, Zap, Users, ChevronRight, Star, ArrowRight } from 'lucide-react'
+import { TrendingUp, BarChart3, Brain, Shield, Zap, Users, ChevronRight, Star, ArrowRight, Copy, DollarSign } from 'lucide-react'
 
 // Candlestick chart component
 function AnimatedChart() {
@@ -225,21 +225,26 @@ export default function LandingPage() {
             </div>
             <div>
               <span className="font-bold text-white text-lg tracking-tight">Midas</span>
-              <span className="font-bold text-amber-400 text-lg tracking-tight"> Journal</span>
+              <span className="font-bold text-amber-400 text-lg tracking-tight"> AI</span>
             </div>
           </div>
           <div className="hidden md:flex items-center gap-8 text-sm text-gray-400">
             <a href="#features" className="hover:text-amber-400 transition-colors">Features</a>
-            <a href="#strategy" className="hover:text-amber-400 transition-colors">Strategy</a>
+            <a href="#strategy" className="hover:text-amber-400 transition-colors">Platform</a>
             <a href="#community" className="hover:text-amber-400 transition-colors">Community</a>
           </div>
           <div className="flex items-center gap-3">
             <Link href="/login" className="text-sm text-gray-400 hover:text-white transition-colors px-4 py-2">
               Sign In
             </Link>
-            <Link href="/login" className="text-sm bg-gradient-to-r from-amber-500 to-orange-500 text-black font-semibold px-5 py-2 rounded-lg hover:shadow-lg hover:shadow-amber-500/30 transition-all">
-              Get Access
-            </Link>
+            <a
+              href="https://www.skool.com/midas-touch-challenge-5991/about"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm bg-gradient-to-r from-amber-500 to-orange-500 text-black font-semibold px-5 py-2 rounded-lg hover:shadow-lg hover:shadow-amber-500/30 transition-all"
+            >
+              Join Midas Touch
+            </a>
           </div>
         </nav>
       </FadeIn>
@@ -261,36 +266,47 @@ export default function LandingPage() {
             <FadeIn delay={200}>
               <div className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 rounded-full px-4 py-2 mb-8">
                 <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-                <span className="text-amber-400 text-sm font-medium">The Midas Touch Trading Group · 14.4K Members</span>
+                <span className="text-amber-400 text-sm font-medium">Included with Midas Touch Membership</span>
               </div>
             </FadeIn>
 
             <FadeIn delay={400}>
               <h1 className="text-5xl lg:text-7xl font-black tracking-tight mb-6 leading-[1.05]">
-                <span className="text-white block">Journal Your</span>
+                <span className="text-white block">Track. Copy.</span>
                 <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-amber-300 bg-clip-text text-transparent block">
-                  Path to Profits
+                  Analyze.
                 </span>
+                <span className="text-white block text-4xl lg:text-5xl mt-2">All in one place.</span>
               </h1>
             </FadeIn>
 
             <FadeIn delay={600}>
               <p className="text-lg text-gray-400 max-w-lg mb-10 leading-relaxed">
-                The premium trading journal built exclusively for the Midas Touch community.
-                Track every Crazy Horse ORB trade, analyze your edge, and level up with AI-powered insights.
+                Midas AI is your complete trading toolkit — journal every trade, copy top performers, get AI-powered insights, and track your path to funded payouts. Built exclusively for the Midas Touch community.
               </p>
             </FadeIn>
 
             <FadeIn delay={800}>
               <div className="flex flex-col sm:flex-row items-start gap-4 mb-12">
-                <Link href="/login" className="group flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-500 text-black font-bold px-8 py-4 rounded-xl text-lg hover:shadow-xl hover:shadow-amber-500/40 transition-all transform hover:scale-105">
-                  Start Journaling Free
+                <a
+                  href="https://www.skool.com/midas-touch-challenge-5991/about"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-500 text-black font-bold px-8 py-4 rounded-xl text-lg hover:shadow-xl hover:shadow-amber-500/40 transition-all transform hover:scale-105"
+                >
+                  Join Midas Touch
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </Link>
+                </a>
                 <Link href="/login" className="flex items-center gap-2 bg-white/5 border border-white/10 text-white font-medium px-8 py-4 rounded-xl text-lg hover:bg-white/10 transition-all">
                   Sign In
                 </Link>
               </div>
+            </FadeIn>
+
+            <FadeIn delay={900}>
+              <p className="text-xs text-gray-600 mb-8">
+                Midas AI is included with your Midas Touch membership — no separate subscription needed.
+              </p>
             </FadeIn>
 
             <FadeIn delay={1000}>
@@ -323,20 +339,20 @@ export default function LandingPage() {
             <FadeIn delay={0}>
               <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-2 mb-6">
                 <Zap className="w-3.5 h-3.5 text-amber-400" />
-                <span className="text-gray-400 text-sm">Everything you need to trade better</span>
+                <span className="text-gray-400 text-sm">The complete trading toolkit</span>
               </div>
-              <h2 className="text-4xl md:text-5xl font-black text-white mb-4">Built for Serious Traders</h2>
-              <p className="text-gray-400 text-lg max-w-xl mx-auto">Every feature designed around the Crazy Horse ORB strategy</p>
+              <h2 className="text-4xl md:text-5xl font-black text-white mb-4">Everything in One Platform</h2>
+              <p className="text-gray-400 text-lg max-w-xl mx-auto">Journal, copy trade, get AI insights, track payouts — all built for the Midas Touch community</p>
             </FadeIn>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
             {[
-              { icon: BarChart3, title: 'Advanced Analytics', desc: 'Win rate, profit factor, avg win/loss, drawdown — every metric that matters.', color: 'text-amber-400', bg: 'bg-amber-400/10', border: 'hover:border-amber-500/30' },
-              { icon: Brain, title: 'AI Post Generator', desc: 'Turn your winning trades into engaging Skool community posts with one click.', color: 'text-purple-400', bg: 'bg-purple-400/10', border: 'hover:border-purple-500/30' },
-              { icon: Zap, title: 'AI Trading Assistant', desc: 'Chat with your personal AI coach about strategy, setups, and market conditions.', color: 'text-blue-400', bg: 'bg-blue-400/10', border: 'hover:border-blue-500/30' },
-              { icon: TrendingUp, title: 'P&L Calendar', desc: 'Visualize your green and red days. Spot consistency patterns at a glance.', color: 'text-emerald-400', bg: 'bg-emerald-400/10', border: 'hover:border-emerald-500/30' },
-              { icon: Shield, title: 'Trade Journal', desc: 'Log trades with screenshots, notes, emotions, and lessons after each session.', color: 'text-orange-400', bg: 'bg-orange-400/10', border: 'hover:border-orange-500/30' },
-              { icon: Users, title: 'Community Ready', desc: 'Built for the 14.4K member Midas Touch community. Share ideas, not just charts.', color: 'text-pink-400', bg: 'bg-pink-400/10', border: 'hover:border-pink-500/30' },
+              { icon: Shield, title: 'Trade Journal', desc: 'Log every trade with screenshots, notes, emotions, and lessons. Full session review after each trade.', color: 'text-amber-400', bg: 'bg-amber-400/10', border: 'hover:border-amber-500/30' },
+              { icon: Copy, title: 'Copy Trading', desc: 'See what top Midas Touch traders are doing in real time. Copy setups, learn their edge, replicate results.', color: 'text-blue-400', bg: 'bg-blue-400/10', border: 'hover:border-blue-500/30' },
+              { icon: Brain, title: 'AI Assistant', desc: 'Your personal AI trading coach. Ask about setups, review your journal, get feedback on your edge.', color: 'text-purple-400', bg: 'bg-purple-400/10', border: 'hover:border-purple-500/30' },
+              { icon: BarChart3, title: 'Advanced Analytics', desc: 'Win rate, profit factor, avg win/loss, drawdown, instrument breakdown — every metric that matters.', color: 'text-emerald-400', bg: 'bg-emerald-400/10', border: 'hover:border-emerald-500/30' },
+              { icon: Users, title: 'Community Post Generator', desc: 'Turn your winning trades into engaging Skool posts with one click. Built-in post templates.', color: 'text-pink-400', bg: 'bg-pink-400/10', border: 'hover:border-pink-500/30' },
+              { icon: DollarSign, title: 'Payout Tracker', desc: 'Track your prop firm challenge progress and payouts. Know exactly where you stand at all times.', color: 'text-orange-400', bg: 'bg-orange-400/10', border: 'hover:border-orange-500/30' },
             ].map((feature) => (
               <div key={feature.title} className={`glass rounded-2xl p-6 ${feature.border} transition-all group cursor-default`}>
                 <div className={`w-12 h-12 rounded-xl ${feature.bg} flex items-center justify-center mb-5 group-hover:scale-110 transition-transform`}>
@@ -350,7 +366,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Strategy section */}
+      {/* Platform section */}
       <section id="strategy" className="py-32 px-6 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-amber-500/5 via-transparent to-transparent pointer-events-none" />
         <div className="max-w-5xl mx-auto relative z-10">
@@ -358,21 +374,22 @@ export default function LandingPage() {
             <div>
               <div className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 rounded-full px-4 py-2 mb-8">
                 <Star className="w-4 h-4 text-amber-400" />
-                <span className="text-amber-400 text-sm font-medium">Crazy Horse ORB Strategy</span>
+                <span className="text-amber-400 text-sm font-medium">Built for Midas Touch Members</span>
               </div>
               <h2 className="text-4xl font-black text-white mb-6 leading-tight">
-                Built Around the<br />
-                <span className="text-amber-400">ORB Setup</span>
+                Your Edge.<br />
+                <span className="text-amber-400">Tracked and Sharpened.</span>
               </h2>
               <p className="text-gray-400 leading-relaxed mb-8">
-                Every field, filter, and metric in Midas Journal is optimized for Opening Range Breakout trading as taught by Mike Trades Daily. No bloat — just what you need to master the setup.
+                Midas AI is not a generic trading journal. Every feature is designed around how the Midas Touch community trades — Crazy Horse ORB, prop firm challenges, and the push toward consistent funded payouts.
               </p>
               <div className="space-y-4">
                 {[
-                  { label: 'ORB-specific trade tags', icon: '🏷️' },
-                  { label: 'Entry quality scoring', icon: '⭐' },
-                  { label: 'Instrument performance breakdown', icon: '📊' },
-                  { label: 'AI pattern recognition across trades', icon: '🤖' },
+                  { label: 'ORB-specific trade tags and filters', icon: '🏷️' },
+                  { label: 'Prop firm challenge progress tracking', icon: '🎯' },
+                  { label: 'Instrument performance breakdown (NQ, ES, MNQ)', icon: '📊' },
+                  { label: 'AI pattern recognition across your trades', icon: '🤖' },
+                  { label: 'Copy trade insights from top community members', icon: '👥' },
                 ].map((item) => (
                   <div key={item.label} className="flex items-center gap-3 text-gray-300">
                     <span>{item.icon}</span>
@@ -380,10 +397,15 @@ export default function LandingPage() {
                   </div>
                 ))}
               </div>
-              <Link href="/login" className="inline-flex items-center gap-2 mt-10 bg-gradient-to-r from-amber-500 to-orange-500 text-black font-bold px-8 py-4 rounded-xl hover:shadow-xl hover:shadow-amber-500/30 transition-all">
-                Start Tracking Your Edge
+              <a
+                href="https://www.skool.com/midas-touch-challenge-5991/about"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 mt-10 bg-gradient-to-r from-amber-500 to-orange-500 text-black font-bold px-8 py-4 rounded-xl hover:shadow-xl hover:shadow-amber-500/30 transition-all"
+              >
+                Join Midas Touch to Get Access
                 <ChevronRight className="w-5 h-5" />
-              </Link>
+              </a>
             </div>
             {/* Mini stats cards */}
             <div className="grid grid-cols-2 gap-4">
@@ -414,13 +436,24 @@ export default function LandingPage() {
               <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
                 Ready to <span className="text-amber-400">Touch Gold?</span>
               </h2>
-              <p className="text-gray-400 text-lg mb-10 max-w-lg mx-auto">
-                Join the Midas Touch community&apos;s premium trading journal. Free to start. Built to win.
+              <p className="text-gray-400 text-lg mb-4 max-w-lg mx-auto">
+                Midas AI is included with your Midas Touch membership. Join the community and get instant access to the full platform.
               </p>
-              <Link href="/login" className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-500 text-black font-bold px-12 py-5 rounded-xl text-xl hover:shadow-2xl hover:shadow-amber-500/40 transition-all transform hover:scale-105">
-                Get Access Now
-                <ArrowRight className="w-6 h-6" />
-              </Link>
+              <p className="text-amber-400/60 text-sm mb-10">Already a member? Sign in below.</p>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <a
+                  href="https://www.skool.com/midas-touch-challenge-5991/about"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-500 text-black font-bold px-12 py-5 rounded-xl text-xl hover:shadow-2xl hover:shadow-amber-500/40 transition-all transform hover:scale-105"
+                >
+                  Join Midas Touch
+                  <ArrowRight className="w-6 h-6" />
+                </a>
+                <Link href="/login" className="inline-flex items-center gap-2 bg-white/5 border border-white/10 text-white font-semibold px-8 py-5 rounded-xl text-lg hover:bg-white/10 transition-all">
+                  Sign In
+                </Link>
+              </div>
             </div>
           </div>
         </div>
@@ -433,9 +466,9 @@ export default function LandingPage() {
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
               <TrendingUp className="w-4 h-4 text-black" />
             </div>
-            <span className="font-bold text-white">Midas Journal</span>
+            <span className="font-bold text-white">Midas AI</span>
           </div>
-          <p className="text-gray-600 text-sm">© 2024 The Midas Touch Trading Group. Built for Mike Trades Daily community.</p>
+          <p className="text-gray-600 text-sm">© 2026 The Midas Touch Trading Group. Built for the Midas Touch community.</p>
         </div>
       </footer>
 

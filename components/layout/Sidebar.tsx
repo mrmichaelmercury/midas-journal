@@ -52,7 +52,7 @@ export function Sidebar() {
         </div>
         {!collapsed && (
           <div className="overflow-hidden">
-            <div className="font-black text-white text-sm tracking-tight whitespace-nowrap">Midas Journal</div>
+            <div className="font-black text-white text-sm tracking-tight whitespace-nowrap">Midas AI</div>
             <div className="text-amber-400/60 text-xs whitespace-nowrap">Midas Touch</div>
           </div>
         )}
