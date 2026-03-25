@@ -34,22 +34,24 @@ model Session {
 }
 
 model User {
-  id              String           @id @default(cuid())
-  name            String?
-  email           String?          @unique
-  emailVerified   DateTime?
-  image           String?
-  password        String?
-  role            String           @default("user")
-  isActive        Boolean          @default(true)
-  accounts        Account[]
-  sessions        Session[]
-  trades          Trade[]
-  journalEntries  JournalEntry[]
-  aiConversations AIConversation[]
-  brokerAccounts  BrokerAccount[]
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
+  id                 String              @id @default(cuid())
+  name               String?
+  email              String?             @unique
+  emailVerified      DateTime?
+  image              String?
+  password           String?
+  role               String              @default("user")
+  isActive           Boolean             @default(true)
+  accounts           Account[]
+  sessions           Session[]
+  trades             Trade[]
+  journalEntries     JournalEntry[]
+  aiConversations    AIConversation[]
+  brokerAccounts     BrokerAccount[]
+  copyTradingConfig  CopyTradingConfig?
+  copyTradeLogs      CopyTradeLog[]
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
 }
 
 model VerificationToken {
@@ -125,4 +127,42 @@ model BrokerAccount {
   tradeCount  Int       @default(0)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+}
+
+model CopyTradingConfig {
+  id              String         @id @default(cuid())
+  userId          String         @unique
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  masterAccountId String?
+  isActive        Boolean        @default(false)
+  followers       CopyFollower[]
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+}
+
+model CopyFollower {
+  id            String            @id @default(cuid())
+  configId      String
+  config        CopyTradingConfig @relation(fields: [configId], references: [id], onDelete: Cascade)
+  accountId     String
+  isEnabled     Boolean           @default(true)
+  lotMultiplier Float             @default(1.0)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+}
+
+model CopyTradeLog {
+  id                String   @id @default(cuid())
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  masterTradeId     String?
+  followerAccountId String
+  instrument        String
+  direction         String
+  quantity          Float
+  lotMultiplier     Float    @default(1.0)
+  status            String   @default("filled")
+  errorMessage      String?
+  executedAt        DateTime @default(now())
+  createdAt         DateTime @default(now())
 }

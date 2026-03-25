@@ -192,15 +192,17 @@ function AnimatedChart() {
   )
 }
 
-// Fade-in with delay
+// Fade-in with delay — CSS-animation-based so it works on first paint without JS
 function FadeIn({ children, delay = 0, className = '' }: { children: React.ReactNode; delay?: number; className?: string }) {
-  const [visible, setVisible] = useState(false)
-  useEffect(() => {
-    const t = setTimeout(() => setVisible(true), delay)
-    return () => clearTimeout(t)
-  }, [delay])
   return (
-    <div className={`transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'} ${className}`}>
+    <div
+      className={className}
+      style={{
+        opacity: 0,
+        animation: 'fadeSlideUp 0.7s ease-out forwards',
+        animationDelay: `${delay}ms`,
+      }}
+    >
       {children}
     </div>
   )
@@ -272,7 +274,7 @@ export default function LandingPage() {
 
             <FadeIn delay={400}>
               <h1 className="text-5xl lg:text-7xl font-black tracking-tight mb-6 leading-[1.05]">
-                <span className="text-white block">Track. Copy.</span>
+                <span className="text-white block">Track. Scale.</span>
                 <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-amber-300 bg-clip-text text-transparent block">
                   Analyze.
                 </span>
@@ -348,7 +350,7 @@ export default function LandingPage() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
             {[
               { icon: Shield, title: 'Trade Journal', desc: 'Log every trade with screenshots, notes, emotions, and lessons. Full session review after each trade.', color: 'text-amber-400', bg: 'bg-amber-400/10', border: 'hover:border-amber-500/30' },
-              { icon: Copy, title: 'Copy Trading', desc: 'See what top Midas Touch traders are doing in real time. Copy setups, learn their edge, replicate results.', color: 'text-blue-400', bg: 'bg-blue-400/10', border: 'hover:border-blue-500/30' },
+              { icon: Copy, title: 'Copy Trading', desc: 'Connect multiple prop firm accounts and mirror trades across all of them instantly. One trade, every account.', color: 'text-blue-400', bg: 'bg-blue-400/10', border: 'hover:border-blue-500/30' },
               { icon: Brain, title: 'AI Assistant', desc: 'Your personal AI trading coach. Ask about setups, review your journal, get feedback on your edge.', color: 'text-purple-400', bg: 'bg-purple-400/10', border: 'hover:border-purple-500/30' },
               { icon: BarChart3, title: 'Advanced Analytics', desc: 'Win rate, profit factor, avg win/loss, drawdown, instrument breakdown — every metric that matters.', color: 'text-emerald-400', bg: 'bg-emerald-400/10', border: 'hover:border-emerald-500/30' },
               { icon: Users, title: 'Community Post Generator', desc: 'Turn your winning trades into engaging Skool posts with one click. Built-in post templates.', color: 'text-pink-400', bg: 'bg-pink-400/10', border: 'hover:border-pink-500/30' },
@@ -475,6 +477,10 @@ export default function LandingPage() {
       <style jsx global>{`
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(4px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeSlideUp {
+          from { opacity: 0; transform: translateY(16px); }
           to { opacity: 1; transform: translateY(0); }
         }
       `}</style>

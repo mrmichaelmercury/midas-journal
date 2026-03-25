@@ -19,6 +19,7 @@ import {
   Wallet,
   Trophy,
   Link2,
+  Copy,
 } from 'lucide-react'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
@@ -33,6 +34,7 @@ const navItems = [
   { href: '/payouts', icon: Wallet, label: 'Payout Tracker' },
   { href: '/achievements', icon: Trophy, label: 'Achievements' },
   { href: '/ai-assistant', icon: Bot, label: 'AI Assistant' },
+  { href: '/copy-trading', icon: Copy, label: 'Copy Trading' },
   { href: '/accounts', icon: Link2, label: 'Connected Accounts' },
   { href: '/settings', icon: Settings, label: 'Settings' },
 ]
