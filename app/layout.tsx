@@ -6,8 +6,8 @@ import { Providers } from '@/components/Providers'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Midas Journal — The Midas Touch Trading Group',
-  description: 'Premium trading journal for The Midas Touch Trading Community. Track, analyze, and improve your Crazy Horse ORB strategy.',
+  title: 'Midas AI — The Complete Trading Toolkit',
+  description: 'The complete trading platform for Midas Touch members. Journal, copy trade, AI assistant, analytics, and payout tracking — all in one place.',
 }
 
 export default function RootLayout({

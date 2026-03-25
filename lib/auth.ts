@@ -1,6 +1,7 @@
 import { NextAuthOptions } from 'next-auth'
 import { PrismaAdapter } from '@auth/prisma-adapter'
 import CredentialsProvider from 'next-auth/providers/credentials'
+import bcrypt from 'bcryptjs'
 import { prisma } from './db'
 
 export const authOptions: NextAuthOptions = {
@@ -13,24 +14,29 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        if (!credentials?.email) return null
-        // Demo: accept any email with password "midas2024"
-        if (credentials.password !== 'midas2024') return null
+        if (!credentials?.email || !credentials?.password) return null
 
-        let user = await prisma.user.findUnique({
+        const user = await prisma.user.findUnique({
           where: { email: credentials.email },
         })
 
-        if (!user) {
-          user = await prisma.user.create({
-            data: {
-              email: credentials.email,
-              name: credentials.email.split('@')[0],
-            },
-          })
+        if (!user || !user.password) return null
+
+        const passwordValid = await bcrypt.compare(credentials.password, user.password)
+        if (!passwordValid) return null
+
+        if (!user.isActive) {
+          throw new Error('DEACTIVATED')
         }
 
-        return { id: user.id, email: user.email, name: user.name, image: user.image }
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          image: user.image,
+          role: user.role,
+          isActive: user.isActive,
+        }
       },
     }),
   ],
@@ -42,12 +48,16 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id
+        token.role = (user as any).role
+        token.isActive = (user as any).isActive
       }
       return token
     },
     async session({ session, token }) {
       if (session.user) {
         (session.user as any).id = token.id
+        ;(session.user as any).role = token.role
+        ;(session.user as any).isActive = token.isActive
       }
       return session
     },
