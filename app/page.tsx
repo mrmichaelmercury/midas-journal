@@ -272,7 +272,7 @@ export default function LandingPage() {
 
             <FadeIn delay={400}>
               <h1 className="text-5xl lg:text-7xl font-black tracking-tight mb-6 leading-[1.05]">
-                <span className="text-white block">Track. Copy.</span>
+                <span className="text-white block">Track. Scale.</span>
                 <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-amber-300 bg-clip-text text-transparent block">
                   Analyze.
                 </span>
@@ -282,7 +282,7 @@ export default function LandingPage() {
 
             <FadeIn delay={600}>
               <p className="text-lg text-gray-400 max-w-lg mb-10 leading-relaxed">
-                Midas AI is your complete trading toolkit — journal every trade, copy top performers, get AI-powered insights, and track your path to funded payouts. Built exclusively for the Midas Touch community.
+                Midas AI is your complete trading toolkit — journal every trade, mirror trades across all your prop firm accounts, get AI-powered insights, and track your path to funded payouts. Built exclusively for the Midas Touch community.
               </p>
             </FadeIn>
 
@@ -342,13 +342,13 @@ export default function LandingPage() {
                 <span className="text-gray-400 text-sm">The complete trading toolkit</span>
               </div>
               <h2 className="text-4xl md:text-5xl font-black text-white mb-4">Everything in One Platform</h2>
-              <p className="text-gray-400 text-lg max-w-xl mx-auto">Journal, copy trade, get AI insights, track payouts — all built for the Midas Touch community</p>
+              <p className="text-gray-400 text-lg max-w-xl mx-auto">Journal, sync trades across prop accounts, get AI insights, track payouts — all built for the Midas Touch community</p>
             </FadeIn>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
             {[
               { icon: Shield, title: 'Trade Journal', desc: 'Log every trade with screenshots, notes, emotions, and lessons. Full session review after each trade.', color: 'text-amber-400', bg: 'bg-amber-400/10', border: 'hover:border-amber-500/30' },
-              { icon: Copy, title: 'Copy Trading', desc: 'See what top Midas Touch traders are doing in real time. Copy setups, learn their edge, replicate results.', color: 'text-blue-400', bg: 'bg-blue-400/10', border: 'hover:border-blue-500/30' },
+              { icon: Copy, title: 'Trade Copier', desc: 'Connect multiple prop firm accounts and mirror trades across all of them instantly. One trade, every account.', color: 'text-blue-400', bg: 'bg-blue-400/10', border: 'hover:border-blue-500/30' },
               { icon: Brain, title: 'AI Assistant', desc: 'Your personal AI trading coach. Ask about setups, review your journal, get feedback on your edge.', color: 'text-purple-400', bg: 'bg-purple-400/10', border: 'hover:border-purple-500/30' },
               { icon: BarChart3, title: 'Advanced Analytics', desc: 'Win rate, profit factor, avg win/loss, drawdown, instrument breakdown — every metric that matters.', color: 'text-emerald-400', bg: 'bg-emerald-400/10', border: 'hover:border-emerald-500/30' },
               { icon: Users, title: 'Community Post Generator', desc: 'Turn your winning trades into engaging Skool posts with one click. Built-in post templates.', color: 'text-pink-400', bg: 'bg-pink-400/10', border: 'hover:border-pink-500/30' },
@@ -389,7 +389,7 @@ export default function LandingPage() {
                   { label: 'Prop firm challenge progress tracking', icon: '🎯' },
                   { label: 'Instrument performance breakdown (NQ, ES, MNQ)', icon: '📊' },
                   { label: 'AI pattern recognition across your trades', icon: '🤖' },
-                  { label: 'Copy trade insights from top community members', icon: '👥' },
+                  { label: 'Trade copier syncs across all your funded accounts', icon: '🔁' },
                 ].map((item) => (
                   <div key={item.label} className="flex items-center gap-3 text-gray-300">
                     <span>{item.icon}</span>
