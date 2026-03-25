@@ -19,6 +19,7 @@ import {
   Wallet,
   Trophy,
   Link2,
+  Sparkles,
 } from 'lucide-react'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
@@ -29,6 +30,7 @@ const navItems = [
   { href: '/trades/new', icon: PlusCircle, label: 'Add Trade' },
   { href: '/calendar', icon: Calendar, label: 'Calendar' },
   { href: '/analytics', icon: BarChart3, label: 'Analytics' },
+  { href: '/weekly-review', icon: Sparkles, label: 'Weekly Review' },
   { href: '/prop-deals', icon: Tag, label: 'Prop Firm Deals' },
   { href: '/payouts', icon: Wallet, label: 'Payout Tracker' },
   { href: '/achievements', icon: Trophy, label: 'Achievements' },
