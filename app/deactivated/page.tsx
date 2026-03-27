@@ -24,7 +24,7 @@ export default function DeactivatedPage() {
         </div>
 
         <p className="text-gray-400 mb-8 leading-relaxed">
-          Your Midas AI account has been deactivated. This typically happens when your Midas Touch membership is no longer active.
+          Your Midas Edge account has been deactivated. This typically happens when your Midas Touch membership is no longer active.
         </p>
 
         <p className="text-gray-500 text-sm mb-8">

@@ -129,7 +129,7 @@ export default function AdminDashboardClient({ initialUsers, initialInviteCodes,
             <TrendingUp className="w-5 h-5 text-black" />
           </div>
           <div>
-            <span className="font-bold text-white">Midas AI</span>
+            <span className="font-bold text-white">Midas Edge</span>
             <span className="ml-2 text-xs bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-full px-2 py-0.5">Admin</span>
           </div>
         </div>

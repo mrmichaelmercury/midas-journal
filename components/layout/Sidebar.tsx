@@ -21,12 +21,14 @@ import {
   Link2,
   Copy,
   Sparkles,
+  Globe,
 } from 'lucide-react'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
 
 const navItems = [
-  { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+  { href: '/market-overview', icon: Globe, label: 'Market Overview' },
+  { href: '/dashboard', icon: LayoutDashboard, label: 'Trade Dashboard' },
   { href: '/trades', icon: BookOpen, label: 'Trade Journal' },
   { href: '/trades/new', icon: PlusCircle, label: 'Add Trade' },
   { href: '/calendar', icon: Calendar, label: 'Calendar' },
@@ -58,7 +60,7 @@ export function Sidebar() {
         </div>
         {!collapsed && (
           <div className="overflow-hidden">
-            <div className="font-black text-white text-sm tracking-tight whitespace-nowrap">Midas AI</div>
+            <div className="font-black text-white text-sm tracking-tight whitespace-nowrap">Midas Edge</div>
             <div className="text-amber-400/60 text-xs whitespace-nowrap">Midas Touch</div>
           </div>
         )}
@@ -67,7 +69,7 @@ export function Sidebar() {
       {/* Nav */}
       <nav className="flex-1 px-2 py-4 space-y-1">
         {navItems.map((item) => {
-          const active = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href))
+          const active = pathname === item.href || (item.href !== '/dashboard' && item.href !== '/market-overview' && pathname.startsWith(item.href))
           return (
             <Link
               key={item.href}

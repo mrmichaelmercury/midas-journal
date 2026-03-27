@@ -6,7 +6,7 @@ import { Providers } from '@/components/Providers'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Midas AI — The Complete Trading Toolkit',
+  title: 'Midas Edge — The Complete Trading Toolkit',
   description: 'The complete trading platform for Midas Touch members. Journal, copy trade, AI assistant, analytics, and payout tracking — all in one place.',
 }
 

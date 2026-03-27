@@ -18,7 +18,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     setMounted(true)
-    if (session) router.push('/dashboard')
+    if (session) router.push('/market-overview')
   }, [session, router])
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -35,7 +35,7 @@ export default function LoginPage() {
     if (result?.error) {
       setError('Invalid email or password.')
     } else {
-      router.push('/dashboard')
+      router.push('/market-overview')
     }
     setLoading(false)
   }
@@ -62,7 +62,7 @@ export default function LoginPage() {
               <TrendingUp className="w-6 h-6 text-black" />
             </div>
             <div>
-              <div className="font-black text-2xl text-white tracking-tight">Midas AI</div>
+              <div className="font-black text-2xl text-white tracking-tight">Midas Edge</div>
               <div className="text-xs text-amber-400/70 tracking-widest uppercase">Midas Touch Trading Group</div>
             </div>
           </div>
@@ -113,12 +113,12 @@ export default function LoginPage() {
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
               <TrendingUp className="w-5 h-5 text-black" />
             </div>
-            <span className="font-black text-xl text-white">Midas AI</span>
+            <span className="font-black text-xl text-white">Midas Edge</span>
           </div>
 
           <div className={`transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
             <h1 className="text-3xl font-black text-white mb-2">Welcome back</h1>
-            <p className="text-gray-400 mb-8">Sign in to your Midas AI account</p>
+            <p className="text-gray-400 mb-8">Sign in to your Midas Edge account</p>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>

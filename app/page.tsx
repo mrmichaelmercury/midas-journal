@@ -213,7 +213,7 @@ export default function LandingPage() {
   const router = useRouter()
 
   useEffect(() => {
-    if (session) router.push('/dashboard')
+    if (session) router.push('/market-overview')
   }, [session, router])
 
   return (
@@ -227,7 +227,7 @@ export default function LandingPage() {
             </div>
             <div>
               <span className="font-bold text-white text-lg tracking-tight">Midas</span>
-              <span className="font-bold text-amber-400 text-lg tracking-tight"> AI</span>
+              <span className="font-bold text-amber-400 text-lg tracking-tight"> Edge</span>
             </div>
           </div>
           <div className="hidden md:flex items-center gap-8 text-sm text-gray-400">
@@ -284,7 +284,7 @@ export default function LandingPage() {
 
             <FadeIn delay={600}>
               <p className="text-lg text-gray-400 max-w-lg mb-10 leading-relaxed">
-                Midas AI is your complete trading toolkit — journal every trade, copy top performers, get AI-powered insights, and track your path to funded payouts. Built exclusively for the Midas Touch community.
+                Midas Edge is your complete trading toolkit — journal every trade, copy top performers, get AI-powered insights, and track your path to funded payouts. Built exclusively for the Midas Touch community.
               </p>
             </FadeIn>
 
@@ -307,7 +307,7 @@ export default function LandingPage() {
 
             <FadeIn delay={900}>
               <p className="text-xs text-gray-600 mb-8">
-                Midas AI is included with your Midas Touch membership — no separate subscription needed.
+                Midas Edge is included with your Midas Touch membership — no separate subscription needed.
               </p>
             </FadeIn>
 
@@ -383,7 +383,7 @@ export default function LandingPage() {
                 <span className="text-amber-400">Tracked and Sharpened.</span>
               </h2>
               <p className="text-gray-400 leading-relaxed mb-8">
-                Midas AI is not a generic trading journal. Every feature is designed around how the Midas Touch community trades — Crazy Horse ORB, prop firm challenges, and the push toward consistent funded payouts.
+                Midas Edge is not a generic trading journal. Every feature is designed around how the Midas Touch community trades — Crazy Horse ORB, prop firm challenges, and the push toward consistent funded payouts.
               </p>
               <div className="space-y-4">
                 {[
@@ -439,7 +439,7 @@ export default function LandingPage() {
                 Ready to <span className="text-amber-400">Touch Gold?</span>
               </h2>
               <p className="text-gray-400 text-lg mb-4 max-w-lg mx-auto">
-                Midas AI is included with your Midas Touch membership. Join the community and get instant access to the full platform.
+                Midas Edge is included with your Midas Touch membership. Join the community and get instant access to the full platform.
               </p>
               <p className="text-amber-400/60 text-sm mb-10">Already a member? Sign in below.</p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -468,7 +468,7 @@ export default function LandingPage() {
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
               <TrendingUp className="w-4 h-4 text-black" />
             </div>
-            <span className="font-bold text-white">Midas AI</span>
+            <span className="font-bold text-white">Midas Edge</span>
           </div>
           <p className="text-gray-600 text-sm">© 2026 The Midas Touch Trading Group. Built for the Midas Touch community.</p>
         </div>
