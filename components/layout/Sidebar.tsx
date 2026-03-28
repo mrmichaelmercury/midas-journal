@@ -28,13 +28,15 @@ import { cn } from '@/lib/utils'
 
 const navItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Trade Dashboard' },
-  { href: '/trades/new', icon: PlusCircle, label: 'Add Trade' },
   { href: '/calendar', icon: Calendar, label: 'Calendar' },
-  { href: '/trades', icon: BookOpen, label: 'Trade Journal' },
   { href: '/analytics', icon: BarChart3, label: 'Analytics' },
   { href: '/ai-assistant', icon: Bot, label: 'AI Assistant' },
   { href: '/market-overview', icon: Globe, label: 'Market Overview' },
   { href: '/settings', icon: Settings, label: 'Settings' },
+  // Hidden - trades accessed via calendar
+  // { href: '/trades', icon: BookOpen, label: 'Trade Journal' },
+  // Hidden - add trade accessed via calendar
+  // { href: '/trades/new', icon: PlusCircle, label: 'Add Trade' },
   // Hidden until ready - uncomment to enable
   // { href: '/copy-trading', icon: Copy, label: 'Copy Trading' },
   // { href: '/accounts', icon: Link2, label: 'Connected Accounts' },

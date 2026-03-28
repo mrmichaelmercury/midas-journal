@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { ChevronLeft, ChevronRight, X, Plus, TrendingUp, TrendingDown, Brain, Smile, Meh, Frown } from 'lucide-react'
+import { ChevronLeft, ChevronRight, X, Plus, TrendingUp, TrendingDown, Brain, Smile, Meh, Frown, Calendar, List } from 'lucide-react'
 import Link from 'next/link'
 import { cn, formatCurrency } from '@/lib/utils'
 
@@ -104,10 +104,83 @@ const emotionIcon = {
   bad: { icon: Frown, color: 'text-red-500' },
 }
 
+// Flatten all trades for list view, sorted newest first
+const allTrades: Array<{ dateKey: string; dateLabel: string; entry: TradeEntry }> = Object.entries(mockDayData)
+  .sort(([a], [b]) => b.localeCompare(a))
+  .flatMap(([dateKey, dayData]) =>
+    (dayData.entries ?? []).map((entry) => ({
+      dateKey,
+      dateLabel: new Date(dateKey + 'T12:00:00').toLocaleDateString('en-US', {
+        weekday: 'short', month: 'short', day: 'numeric', year: 'numeric',
+      }),
+      entry,
+    }))
+  )
+
+function ListTradeRow({ dateLabel, entry }: { dateLabel: string; entry: TradeEntry }) {
+  const [expanded, setExpanded] = useState(false)
+  const Emotion = emotionIcon[entry.emotion]
+  return (
+    <div
+      className="bg-white border border-gray-100 rounded-2xl overflow-hidden transition-all cursor-pointer hover:border-gray-200"
+      onClick={() => setExpanded(!expanded)}
+    >
+      <div className="flex items-center gap-4 px-5 py-4">
+        <div className={cn(
+          'w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0',
+          entry.direction === 'LONG' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-500'
+        )}>
+          {entry.direction === 'LONG' ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-bold text-gray-900">{entry.instrument}</span>
+            <span className="text-xs text-gray-400">{entry.direction}</span>
+          </div>
+          <div className="text-xs text-gray-400 mt-0.5">{dateLabel}</div>
+        </div>
+        <div className="flex items-center gap-3 flex-shrink-0">
+          <span className={cn(
+            'text-sm font-black',
+            entry.pnl > 0 ? 'text-emerald-600' : 'text-red-500'
+          )}>
+            {entry.pnl > 0 ? '+' : ''}{formatCurrency(entry.pnl)}
+          </span>
+          <span className={cn(
+            'text-xs font-semibold px-2 py-0.5 rounded-full',
+            entry.pnl > 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-500'
+          )}>
+            {entry.pnl > 0 ? 'Win' : 'Loss'}
+          </span>
+          <ChevronRight className={cn('w-4 h-4 text-gray-300 transition-transform', expanded && 'rotate-90')} />
+        </div>
+      </div>
+      {expanded && (
+        <div className="px-5 pb-4 pt-0 border-t border-gray-50 space-y-2">
+          <div className="flex items-center gap-1.5 text-xs text-gray-400">
+            <Brain className="w-3 h-3" />
+            {entry.strategy}
+          </div>
+          {entry.note && (
+            <p className="text-xs text-gray-600 leading-relaxed">&ldquo;{entry.note}&rdquo;</p>
+          )}
+          <div className="flex items-center gap-1.5 text-xs">
+            <Emotion.icon className={cn('w-3.5 h-3.5', Emotion.color)} />
+            <span className={cn('capitalize', Emotion.color)}>
+              {entry.emotion === 'good' ? 'Felt great' : entry.emotion === 'neutral' ? 'Neutral' : 'Struggled'}
+            </span>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function CalendarPage() {
   const [currentDate, setCurrentDate] = useState(new Date(2024, 0, 1))
   const [selectedKey, setSelectedKey] = useState<string | null>(null)
   const [panelOpen, setPanelOpen] = useState(false)
+  const [view, setView] = useState<'calendar' | 'list'>('calendar')
 
   const year = currentDate.getFullYear()
   const month = currentDate.getMonth()
@@ -148,13 +221,36 @@ export default function CalendarPage() {
           <p className="text-gray-500 mt-1">Your daily P&amp;L at a glance — click any day for details</p>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 text-sm text-gray-500">
-            <div className="w-3 h-3 rounded-sm bg-emerald-200 border border-emerald-400" />
-            Green day
-          </div>
-          <div className="flex items-center gap-2 text-sm text-gray-500">
-            <div className="w-3 h-3 rounded-sm bg-red-200 border border-red-400" />
-            Red day
+          {view === 'calendar' && (
+            <div className="flex items-center gap-2 text-sm text-gray-500">
+              <div className="w-3 h-3 rounded-sm bg-emerald-200 border border-emerald-400" />
+              Green day
+              <div className="w-3 h-3 rounded-sm bg-red-200 border border-red-400 ml-2" />
+              Red day
+            </div>
+          )}
+          {/* View toggle */}
+          <div className="flex items-center bg-gray-100 rounded-xl p-1 gap-0.5">
+            <button
+              onClick={() => setView('calendar')}
+              className={cn(
+                'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all',
+                view === 'calendar' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+              )}
+            >
+              <Calendar className="w-3.5 h-3.5" />
+              Calendar
+            </button>
+            <button
+              onClick={() => setView('list')}
+              className={cn(
+                'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all',
+                view === 'list' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+              )}
+            >
+              <List className="w-3.5 h-3.5" />
+              List
+            </button>
           </div>
         </div>
       </div>
@@ -174,65 +270,78 @@ export default function CalendarPage() {
         ))}
       </div>
 
-      {/* Calendar */}
-      <div className="glass rounded-2xl p-6">
-        <div className="flex items-center justify-between mb-6">
-          <button onClick={() => setCurrentDate(new Date(year, month - 1))} className="p-2 rounded-xl hover:bg-gray-100 transition-all">
-            <ChevronLeft className="w-5 h-5 text-gray-500" />
-          </button>
-          <h2 className="text-lg font-bold text-gray-900">{monthName}</h2>
-          <button onClick={() => setCurrentDate(new Date(year, month + 1))} className="p-2 rounded-xl hover:bg-gray-100 transition-all">
-            <ChevronRight className="w-5 h-5 text-gray-500" />
-          </button>
-        </div>
+      {view === 'calendar' ? (
+        /* Calendar view */
+        <div className="glass rounded-2xl p-6">
+          <div className="flex items-center justify-between mb-6">
+            <button onClick={() => setCurrentDate(new Date(year, month - 1))} className="p-2 rounded-xl hover:bg-gray-100 transition-all">
+              <ChevronLeft className="w-5 h-5 text-gray-500" />
+            </button>
+            <h2 className="text-lg font-bold text-gray-900">{monthName}</h2>
+            <button onClick={() => setCurrentDate(new Date(year, month + 1))} className="p-2 rounded-xl hover:bg-gray-100 transition-all">
+              <ChevronRight className="w-5 h-5 text-gray-500" />
+            </button>
+          </div>
 
-        {/* Day headers */}
-        <div className="grid grid-cols-7 mb-2">
-          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((d) => (
-            <div key={d} className="text-center text-xs font-medium text-gray-400 py-2">{d}</div>
-          ))}
-        </div>
+          {/* Day headers */}
+          <div className="grid grid-cols-7 mb-2">
+            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((d) => (
+              <div key={d} className="text-center text-xs font-medium text-gray-400 py-2">{d}</div>
+            ))}
+          </div>
 
-        {/* Days */}
-        <div className="grid grid-cols-7 gap-1">
-          {Array.from({ length: firstDay }).map((_, i) => <div key={`empty-${i}`} />)}
-          {days.map(({ day, key, data }) => {
-            const isToday = key === new Date().toISOString().split('T')[0]
-            const isSelected = key === selectedKey
-            return (
-              <button
-                key={key}
-                onClick={() => openDay(key)}
-                className={cn(
-                  'aspect-square rounded-xl p-1 flex flex-col items-center justify-center transition-all hover:scale-105 focus:outline-none',
-                  data
-                    ? data.pnl > 0
-                      ? 'bg-emerald-50 border border-emerald-300 hover:border-emerald-500'
-                      : 'bg-red-50 border border-red-300 hover:border-red-500'
-                    : 'bg-gray-50 border border-transparent hover:border-gray-200',
-                  isToday && 'ring-2 ring-amber-400',
-                  isSelected && 'ring-2 ring-amber-500 scale-105'
-                )}
-              >
-                <span className={cn(
-                  'text-sm font-semibold',
-                  data ? (data.pnl > 0 ? 'text-emerald-700' : 'text-red-600') : 'text-gray-400'
-                )}>
-                  {day}
-                </span>
-                {data && (
+          {/* Days */}
+          <div className="grid grid-cols-7 gap-1">
+            {Array.from({ length: firstDay }).map((_, i) => <div key={`empty-${i}`} />)}
+            {days.map(({ day, key, data }) => {
+              const isToday = key === new Date().toISOString().split('T')[0]
+              const isSelected = key === selectedKey
+              return (
+                <button
+                  key={key}
+                  onClick={() => openDay(key)}
+                  className={cn(
+                    'aspect-square rounded-xl p-1 flex flex-col items-center justify-center transition-all hover:scale-105 focus:outline-none',
+                    data
+                      ? data.pnl > 0
+                        ? 'bg-emerald-50 border border-emerald-300 hover:border-emerald-500'
+                        : 'bg-red-50 border border-red-300 hover:border-red-500'
+                      : 'bg-gray-50 border border-transparent hover:border-gray-200',
+                    isToday && 'ring-2 ring-amber-400',
+                    isSelected && 'ring-2 ring-amber-500 scale-105'
+                  )}
+                >
                   <span className={cn(
-                    'text-xs font-bold mt-0.5',
-                    data.pnl > 0 ? 'text-emerald-600' : 'text-red-500'
+                    'text-sm font-semibold',
+                    data ? (data.pnl > 0 ? 'text-emerald-700' : 'text-red-600') : 'text-gray-400'
                   )}>
-                    {data.pnl > 0 ? '+' : ''}{Math.abs(data.pnl) > 999 ? `${(data.pnl/1000).toFixed(1)}k` : data.pnl}
+                    {day}
                   </span>
-                )}
-              </button>
-            )
-          })}
+                  {data && (
+                    <span className={cn(
+                      'text-xs font-bold mt-0.5',
+                      data.pnl > 0 ? 'text-emerald-600' : 'text-red-500'
+                    )}>
+                      {data.pnl > 0 ? '+' : ''}{Math.abs(data.pnl) > 999 ? `${(data.pnl/1000).toFixed(1)}k` : data.pnl}
+                    </span>
+                  )}
+                </button>
+              )
+            })}
+          </div>
         </div>
-      </div>
+      ) : (
+        /* List view */
+        <div className="space-y-2">
+          {allTrades.length === 0 ? (
+            <div className="text-center py-16 text-gray-400 text-sm">No trades logged yet.</div>
+          ) : (
+            allTrades.map((t, i) => (
+              <ListTradeRow key={`${t.dateKey}-${i}`} dateLabel={t.dateLabel} entry={t.entry} />
+            ))
+          )}
+        </div>
+      )}
 
       {/* Slide-over backdrop */}
       {panelOpen && (
