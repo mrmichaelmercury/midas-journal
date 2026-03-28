@@ -34,10 +34,10 @@ const badges: Badge[] = [
 ]
 
 const rarityConfig = {
-  common: { label: 'Common', color: 'text-gray-400', border: 'border-gray-500/30', bg: 'bg-gray-500/10', glow: '' },
-  rare: { label: 'Rare', color: 'text-blue-400', border: 'border-blue-500/30', bg: 'bg-blue-500/10', glow: 'shadow-blue-500/20' },
-  epic: { label: 'Epic', color: 'text-purple-400', border: 'border-purple-500/30', bg: 'bg-purple-500/10', glow: 'shadow-purple-500/20' },
-  legendary: { label: 'Legendary', color: 'text-amber-400', border: 'border-amber-500/40', bg: 'bg-amber-500/10', glow: 'shadow-amber-500/30' },
+  common: { label: 'Common', color: 'text-gray-500', border: 'border-gray-200', bg: 'bg-gray-50', glow: '' },
+  rare: { label: 'Rare', color: 'text-blue-600', border: 'border-blue-200', bg: 'bg-blue-50', glow: 'shadow-blue-100' },
+  epic: { label: 'Epic', color: 'text-purple-600', border: 'border-purple-200', bg: 'bg-purple-50', glow: 'shadow-purple-100' },
+  legendary: { label: 'Legendary', color: 'text-amber-600', border: 'border-amber-300', bg: 'bg-amber-50', glow: 'shadow-amber-100' },
 }
 
 const currentStreak = 14
@@ -51,44 +51,44 @@ export default function AchievementsPage() {
     <div className="p-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-black text-white">Achievements</h1>
+        <h1 className="text-2xl font-black text-gray-900">Achievements</h1>
         <p className="text-gray-500 mt-1">Track your milestones and flex your progress</p>
       </div>
 
       {/* Streak + Summary row */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
-        {/* Streak card — highlighted */}
+        {/* Streak card */}
         <div className="md:col-span-1 glass-gold rounded-2xl p-6 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-amber-500/15 to-orange-500/5" />
+          <div className="absolute inset-0 bg-gradient-to-br from-amber-50 to-orange-50" />
           <div className="relative z-10 text-center">
             <div className="text-6xl mb-2">🔥</div>
-            <div className="text-5xl font-black text-amber-400">{currentStreak}</div>
-            <div className="text-white font-bold mt-1">Day Streak</div>
-            <div className="text-gray-400 text-sm mt-1">Keep journaling to extend it!</div>
+            <div className="text-5xl font-black text-amber-500">{currentStreak}</div>
+            <div className="text-gray-900 font-bold mt-1">Day Streak</div>
+            <div className="text-gray-500 text-sm mt-1">Keep journaling to extend it!</div>
             <div className="mt-4 flex items-center justify-center gap-1">
               {Array.from({ length: 7 }).map((_, i) => (
                 <div key={i} className={cn(
                   'w-6 h-6 rounded-lg flex items-center justify-center text-xs',
-                  i < 7 ? 'bg-amber-500/20 border border-amber-500/40 text-amber-400' : 'bg-white/5 border border-white/10 text-gray-600'
+                  i < 7 ? 'bg-amber-100 border border-amber-300 text-amber-600' : 'bg-gray-100 border border-gray-200 text-gray-400'
                 )}>
                   {i < 7 ? '✓' : '·'}
                 </div>
               ))}
             </div>
-            <div className="text-xs text-gray-500 mt-2">Last 7 days</div>
+            <div className="text-xs text-gray-400 mt-2">Last 7 days</div>
           </div>
         </div>
 
         {/* Stats */}
         <div className="md:col-span-2 grid grid-cols-3 gap-4">
           {[
-            { label: 'Badges Earned', value: earned.length, total: badges.length, icon: '🏅', color: 'text-amber-400' },
-            { label: 'Legendary', value: badges.filter((b) => b.rarity === 'legendary' && b.earned).length, total: badges.filter((b) => b.rarity === 'legendary').length, icon: '👑', color: 'text-amber-400' },
-            { label: 'Epic Badges', value: badges.filter((b) => b.rarity === 'epic' && b.earned).length, total: badges.filter((b) => b.rarity === 'epic').length, icon: '💎', color: 'text-purple-400' },
+            { label: 'Badges Earned', value: earned.length, total: badges.length, icon: '🏅', color: 'text-amber-600' },
+            { label: 'Legendary', value: badges.filter((b) => b.rarity === 'legendary' && b.earned).length, total: badges.filter((b) => b.rarity === 'legendary').length, icon: '👑', color: 'text-amber-600' },
+            { label: 'Epic Badges', value: badges.filter((b) => b.rarity === 'epic' && b.earned).length, total: badges.filter((b) => b.rarity === 'epic').length, icon: '💎', color: 'text-purple-600' },
           ].map((s) => (
             <div key={s.label} className="glass rounded-2xl p-5 text-center">
               <div className="text-3xl mb-2">{s.icon}</div>
-              <div className={cn('text-3xl font-black', s.color)}>{s.value}<span className="text-lg text-gray-600">/{s.total}</span></div>
+              <div className={cn('text-3xl font-black', s.color)}>{s.value}<span className="text-lg text-gray-300">/{s.total}</span></div>
               <div className="text-xs text-gray-500 mt-1">{s.label}</div>
             </div>
           ))}
@@ -98,22 +98,22 @@ export default function AchievementsPage() {
       {/* In Progress */}
       {inProgress.length > 0 && (
         <div className="mb-10">
-          <h2 className="font-bold text-white mb-4 flex items-center gap-2">
-            <span className="text-amber-400">⏳</span> In Progress
+          <h2 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <span className="text-amber-500">⏳</span> In Progress
           </h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
             {inProgress.map((badge) => {
               const r = rarityConfig[badge.rarity]
               const pct = badge.progress && badge.progressMax ? (badge.progress / badge.progressMax) * 100 : 0
               return (
-                <div key={badge.id} className={cn('glass rounded-2xl p-5 border transition-all hover:bg-white/5', r.border)}>
+                <div key={badge.id} className={cn('glass rounded-2xl p-5 border transition-all hover:shadow-md', r.border)}>
                   <div className="flex items-start gap-4 mb-3">
                     <div className={cn('w-12 h-12 rounded-xl border flex items-center justify-center text-2xl', r.bg, r.border)}>
                       {badge.icon}
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-white text-sm">{badge.title}</span>
+                        <span className="font-bold text-gray-900 text-sm">{badge.title}</span>
                         <span className={cn('text-xs px-1.5 py-0.5 rounded-full', r.bg, r.color)}>{r.label}</span>
                       </div>
                       <p className="text-xs text-gray-500 mt-0.5">{badge.description}</p>
@@ -124,7 +124,7 @@ export default function AchievementsPage() {
                       <span>Progress</span>
                       <span className={r.color}>{badge.progress?.toLocaleString()} / {badge.progressMax?.toLocaleString()}</span>
                     </div>
-                    <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+                    <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                       <div
                         className={cn('h-full rounded-full transition-all', badge.rarity === 'legendary' ? 'bg-gradient-to-r from-amber-500 to-orange-400' : badge.rarity === 'epic' ? 'bg-gradient-to-r from-purple-500 to-indigo-400' : 'bg-gradient-to-r from-blue-500 to-cyan-400')}
                         style={{ width: `${Math.min(pct, 100)}%` }}
@@ -140,8 +140,8 @@ export default function AchievementsPage() {
 
       {/* Earned */}
       <div className="mb-10">
-        <h2 className="font-bold text-white mb-4 flex items-center gap-2">
-          <span className="text-emerald-400">✅</span> Earned Badges ({earned.length})
+        <h2 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <span className="text-emerald-500">✅</span> Earned Badges ({earned.length})
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {earned.map((badge) => {
@@ -152,16 +152,16 @@ export default function AchievementsPage() {
                 className={cn(
                   'glass rounded-2xl p-4 border text-center transition-all hover:scale-105 cursor-default',
                   r.border,
-                  badge.rarity === 'legendary' && 'shadow-lg animate-pulse-gold'
+                  badge.rarity === 'legendary' && 'shadow-md shadow-amber-100'
                 )}
               >
                 <div className={cn('w-14 h-14 rounded-2xl border flex items-center justify-center text-3xl mx-auto mb-3', r.bg, r.border)}>
                   {badge.icon}
                 </div>
-                <div className="font-bold text-white text-xs">{badge.title}</div>
+                <div className="font-bold text-gray-900 text-xs">{badge.title}</div>
                 <div className={cn('text-xs mt-1', r.color)}>{r.label}</div>
                 {badge.earnedDate && (
-                  <div className="text-xs text-gray-600 mt-1">{badge.earnedDate}</div>
+                  <div className="text-xs text-gray-400 mt-1">{badge.earnedDate}</div>
                 )}
               </div>
             )
@@ -171,20 +171,20 @@ export default function AchievementsPage() {
 
       {/* Locked */}
       <div>
-        <h2 className="font-bold text-white mb-4 flex items-center gap-2">
-          <span className="text-gray-500">🔒</span> Locked ({locked.length})
+        <h2 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <span className="text-gray-400">🔒</span> Locked ({locked.length})
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {locked.map((badge) => {
             const r = rarityConfig[badge.rarity]
             return (
-              <div key={badge.id} className="glass rounded-2xl p-4 border border-white/5 text-center opacity-50 hover:opacity-70 transition-all cursor-default">
-                <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-3xl mx-auto mb-3 grayscale">
+              <div key={badge.id} className="glass rounded-2xl p-4 border border-gray-100 text-center opacity-50 hover:opacity-70 transition-all cursor-default">
+                <div className="w-14 h-14 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center text-3xl mx-auto mb-3 grayscale">
                   {badge.icon}
                 </div>
-                <div className="font-bold text-gray-400 text-xs">{badge.title}</div>
+                <div className="font-bold text-gray-500 text-xs">{badge.title}</div>
                 <div className={cn('text-xs mt-1', r.color)}>{r.label}</div>
-                <div className="text-xs text-gray-600 mt-1 line-clamp-2">{badge.description}</div>
+                <div className="text-xs text-gray-400 mt-1 line-clamp-2">{badge.description}</div>
               </div>
             )
           })}

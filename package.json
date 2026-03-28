@@ -11,7 +11,6 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.80.0",
-    "bcryptjs": "^2.4.3",
     "@auth/prisma-adapter": "^2.11.1",
     "@prisma/client": "^6.19.2",
     "@radix-ui/react-dialog": "^1.1.15",
@@ -19,6 +18,7 @@
     "@radix-ui/react-select": "^2.2.6",
     "@radix-ui/react-tabs": "^1.1.13",
     "@radix-ui/react-tooltip": "^1.2.8",
+    "bcryptjs": "^2.4.3",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.38.0",

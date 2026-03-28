@@ -62,7 +62,6 @@ export default function AIAssistantPage() {
     setInput('')
     setLoading(true)
 
-    // Simulate AI response
     await new Promise((r) => setTimeout(r, 1500))
 
     const response = `Great question! Based on your trading data, here's what I can see:
@@ -88,34 +87,34 @@ Would you like me to go deeper on any of these insights?`
     return content.split('\n').map((line, i) => {
       const boldLine = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
       if (line.startsWith('**') && line.endsWith('**')) {
-        return <h4 key={i} className="font-bold text-white mt-3 mb-1" dangerouslySetInnerHTML={{ __html: boldLine }} />
+        return <h4 key={i} className="font-bold text-gray-900 mt-3 mb-1" dangerouslySetInnerHTML={{ __html: boldLine }} />
       }
       if (line.startsWith('•')) {
-        return <li key={i} className="text-gray-300 ml-4 list-disc" dangerouslySetInnerHTML={{ __html: boldLine.slice(2) }} />
+        return <li key={i} className="text-gray-700 ml-4 list-disc" dangerouslySetInnerHTML={{ __html: boldLine.slice(2) }} />
       }
       if (line === '') return <br key={i} />
-      return <p key={i} className="text-gray-300 leading-relaxed" dangerouslySetInnerHTML={{ __html: boldLine }} />
+      return <p key={i} className="text-gray-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: boldLine }} />
     })
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full bg-gray-50">
       {/* Header */}
-      <div className="px-8 py-6 border-b border-white/5 flex items-center justify-between">
+      <div className="px-8 py-5 border-b border-gray-200 bg-white flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-purple-500/30">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-md shadow-purple-500/20">
             <Bot className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h1 className="font-black text-white">AI Trading Assistant</h1>
+            <h1 className="font-black text-gray-900">AI Trading Assistant</h1>
             <div className="flex items-center gap-2 mt-0.5">
-              <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-xs text-emerald-400">Online · Powered by Claude</span>
+              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-xs text-emerald-600">Online · Powered by Claude</span>
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-2 text-xs text-gray-500 bg-white/5 px-3 py-1.5 rounded-full border border-white/10">
-          <TrendingUp className="w-3 h-3 text-amber-400" />
+        <div className="flex items-center gap-2 text-xs text-gray-500 bg-gray-100 px-3 py-1.5 rounded-full border border-gray-200">
+          <TrendingUp className="w-3 h-3 text-amber-500" />
           Midas Touch AI
         </div>
       </div>
@@ -130,13 +129,13 @@ Would you like me to go deeper on any of these insights?`
                 ? 'bg-gradient-to-br from-purple-500 to-indigo-600'
                 : 'bg-gradient-to-br from-amber-400 to-orange-500'
             )}>
-              {msg.role === 'assistant' ? <Bot className="w-4 h-4 text-white" /> : <User className="w-4 h-4 text-black" />}
+              {msg.role === 'assistant' ? <Bot className="w-4 h-4 text-white" /> : <User className="w-4 h-4 text-white" />}
             </div>
             <div className={cn(
               'max-w-2xl rounded-2xl px-5 py-4',
               msg.role === 'assistant'
-                ? 'glass border border-purple-500/10'
-                : 'bg-gradient-to-br from-amber-500/20 to-orange-500/10 border border-amber-500/20'
+                ? 'glass border border-purple-100'
+                : 'bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200'
             )}>
               <div className="space-y-1">
                 {renderContent(msg.content)}
@@ -149,7 +148,7 @@ Would you like me to go deeper on any of these insights?`
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center flex-shrink-0">
               <Bot className="w-4 h-4 text-white" />
             </div>
-            <div className="glass rounded-2xl border border-purple-500/10">
+            <div className="glass rounded-2xl border border-purple-100">
               <TypingIndicator />
             </div>
           </div>
@@ -161,7 +160,7 @@ Would you like me to go deeper on any of these insights?`
       {messages.length <= 1 && (
         <div className="px-8 pb-4">
           <p className="text-xs text-gray-500 mb-3 flex items-center gap-2">
-            <Sparkles className="w-3 h-3 text-amber-400" />
+            <Sparkles className="w-3 h-3 text-amber-500" />
             Quick prompts
           </p>
           <div className="flex flex-wrap gap-2">
@@ -169,7 +168,7 @@ Would you like me to go deeper on any of these insights?`
               <button
                 key={s}
                 onClick={() => sendMessage(s)}
-                className="text-xs bg-white/5 border border-white/10 text-gray-400 px-3 py-2 rounded-xl hover:border-amber-500/30 hover:text-amber-400 transition-all"
+                className="text-xs bg-white border border-gray-200 text-gray-600 px-3 py-2 rounded-xl hover:border-amber-300 hover:text-amber-600 transition-all"
               >
                 {s}
               </button>
@@ -179,24 +178,24 @@ Would you like me to go deeper on any of these insights?`
       )}
 
       {/* Input */}
-      <div className="px-8 py-5 border-t border-white/5">
-        <div className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-2xl px-4 py-3 focus-within:border-amber-500/40 transition-all">
+      <div className="px-8 py-5 border-t border-gray-200 bg-white">
+        <div className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3 focus-within:border-amber-400 focus-within:ring-2 focus-within:ring-amber-50 transition-all">
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && sendMessage()}
             placeholder="Ask about your trades, strategy, or request a post..."
-            className="flex-1 bg-transparent text-white placeholder:text-gray-600 text-sm focus:outline-none"
+            className="flex-1 bg-transparent text-gray-900 placeholder:text-gray-400 text-sm focus:outline-none"
           />
           <button
             onClick={() => sendMessage()}
             disabled={!input.trim() || loading}
-            className="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center disabled:opacity-40 hover:shadow-lg hover:shadow-amber-500/30 transition-all"
+            className="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center disabled:opacity-40 hover:shadow-md hover:shadow-amber-500/25 transition-all"
           >
-            <Send className="w-4 h-4 text-black" />
+            <Send className="w-4 h-4 text-white" />
           </button>
         </div>
-        <p className="text-xs text-gray-600 mt-2 text-center">AI responses are for educational purposes. Always do your own analysis.</p>
+        <p className="text-xs text-gray-400 mt-2 text-center">AI responses are for educational purposes. Always do your own analysis.</p>
       </div>
     </div>
   )

@@ -6,193 +6,89 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { TrendingUp, BarChart3, Brain, Shield, Zap, Users, ChevronRight, Star, ArrowRight, Copy, DollarSign } from 'lucide-react'
 
-// Candlestick chart component
-function AnimatedChart() {
+// Animated dashboard mockup
+function DashboardMockup() {
   const [phase, setPhase] = useState(0)
-  const [hovered, setHovered] = useState(false)
-  const [pnlCount, setPnlCount] = useState(0)
-  const [started, setStarted] = useState(false)
-  const intervalRef = useRef<NodeJS.Timeout | null>(null)
-  const pnlRef = useRef<NodeJS.Timeout | null>(null)
-
-  const candles = [
-    { o: 60, h: 70, l: 55, c: 65, green: true },
-    { o: 65, h: 72, l: 62, c: 68, green: true },
-    { o: 68, h: 75, l: 64, c: 66, green: false },
-    { o: 66, h: 69, l: 58, c: 61, green: false },
-    { o: 61, h: 65, l: 57, c: 64, green: true },
-    { o: 64, h: 74, l: 62, c: 72, green: true },
-    { o: 72, h: 80, l: 70, c: 78, green: true },
-    { o: 78, h: 85, l: 76, c: 82, green: true },
-    { o: 82, h: 88, l: 79, c: 85, green: true },
-    { o: 85, h: 92, l: 83, c: 90, green: true },
-  ]
-
-  const equityPoints = [20, 28, 24, 22, 26, 35, 45, 55, 62, 70, 75]
 
   useEffect(() => {
-    const timer = setTimeout(() => setStarted(true), 800)
-    return () => clearTimeout(timer)
+    const t = setInterval(() => setPhase(p => Math.min(p + 1, 10)), 250)
+    return () => clearInterval(t)
   }, [])
 
-  useEffect(() => {
-    if (!started) return
-    intervalRef.current = setInterval(() => {
-      setPhase((p) => Math.min(p + 1, candles.length))
-    }, 300)
-    return () => clearInterval(intervalRef.current!)
-  }, [started])
-
-  useEffect(() => {
-    if (phase === candles.length && started) {
-      let val = 0
-      const target = 4_230
-      pnlRef.current = setInterval(() => {
-        val = Math.min(val + 127, target)
-        setPnlCount(val)
-        if (val >= target) clearInterval(pnlRef.current!)
-      }, 30)
-    }
-    return () => clearInterval(pnlRef.current!)
-  }, [phase, started])
-
-  const scale = (v: number) => ((100 - v) / 100) * 140 + 10
-
-  const equityPath = equityPoints
-    .slice(0, Math.max(1, Math.floor((phase / candles.length) * equityPoints.length)))
-    .map((y, i) => {
-      const x = (i / (equityPoints.length - 1)) * 340 + 10
-      return `${i === 0 ? 'M' : 'L'} ${x} ${scale(y)}`
-    })
-    .join(' ')
+  const bars = [40, 55, 45, 70, 65, 80, 75, 90, 85, 95]
 
   return (
-    <div
-      className="relative w-full max-w-lg mx-auto"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
-      {/* Chart card */}
-      <div className={`relative glass rounded-3xl p-6 border transition-all duration-500 ${hovered ? 'border-amber-500/40 shadow-2xl shadow-amber-500/20' : 'border-white/10'}`}>
-        {/* Header */}
+    <div className="relative w-full max-w-lg mx-auto">
+      {/* Main card */}
+      <div className="glass rounded-2xl p-5 shadow-xl border-gray-200">
+        {/* Header row */}
         <div className="flex items-center justify-between mb-4">
           <div>
-            <div className="text-xs text-gray-500 uppercase tracking-wider">NQ Futures · Crazy Horse ORB</div>
-            <div className={`text-3xl font-black transition-all duration-300 ${phase === candles.length ? 'text-emerald-400' : 'text-gray-300'}`}>
-              {phase === candles.length ? `+$${pnlCount.toLocaleString()}` : 'Loading...'}
+            <div className="text-xs text-gray-400 mb-1">NQ Futures · Crazy Horse ORB</div>
+            <div className="text-2xl font-black text-gray-900">
+              {phase >= 10 ? <span className="text-emerald-500">+$4,230</span> : <span className="text-gray-300">Loading...</span>}
             </div>
           </div>
-          <div className="flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-3 py-1.5">
-            <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-xs text-emerald-400 font-medium">LIVE</span>
+          <div className="flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 rounded-full px-3 py-1.5">
+            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="text-xs text-emerald-600 font-medium">LIVE</span>
           </div>
         </div>
 
-        {/* SVG Chart */}
-        <svg width="100%" viewBox="0 0 360 160" className="overflow-visible">
-          {/* Grid lines */}
-          {[0.25, 0.5, 0.75].map((f) => (
-            <line
-              key={f}
-              x1="0"
-              y1={160 * f}
-              x2="360"
-              y2={160 * f}
-              stroke="rgba(255,255,255,0.05)"
-              strokeWidth="1"
-              strokeDasharray="4 4"
-            />
+        {/* Bar chart */}
+        <div className="h-28 flex items-end gap-1 mb-3">
+          {bars.map((h, i) => (
+            <div key={i} className="flex-1 flex flex-col justify-end">
+              <div
+                className={`rounded-sm transition-all duration-300 ${i < phase ? 'bg-gradient-to-t from-amber-500 to-amber-300' : 'bg-gray-100'}`}
+                style={{ height: `${i < phase ? h : 0}%` }}
+              />
+            </div>
           ))}
+        </div>
 
-          {/* Equity curve */}
-          {phase > 0 && (
-            <>
-              <defs>
-                <linearGradient id="equityGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#10b981" stopOpacity="0.3" />
-                  <stop offset="100%" stopColor="#10b981" stopOpacity="0" />
-                </linearGradient>
-              </defs>
-              <path
-                d={`${equityPath} L ${((Math.min(phase, equityPoints.length) - 1) / (equityPoints.length - 1)) * 340 + 10} 160 L 10 160 Z`}
-                fill="url(#equityGrad)"
-              />
-              <path
-                d={equityPath}
-                fill="none"
-                stroke="#10b981"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                style={{ filter: 'drop-shadow(0 0 6px rgba(16,185,129,0.5))' }}
-              />
-            </>
-          )}
-
-          {/* Candlesticks */}
-          {candles.slice(0, phase).map((c, i) => {
-            const x = i * 34 + 22
-            const bodyTop = scale(Math.max(c.o, c.c))
-            const bodyBot = scale(Math.min(c.o, c.c))
-            const bodyH = Math.max(bodyBot - bodyTop, 2)
-            const color = c.green ? '#10b981' : '#ef4444'
-            return (
-              <g key={i} style={{ opacity: 0, animation: `fadeIn 0.3s ease forwards ${i * 0.05}s` }}>
-                {/* Wick */}
-                <line x1={x} y1={scale(c.h)} x2={x} y2={scale(c.l)} stroke={color} strokeWidth="1.5" opacity="0.7" />
-                {/* Body */}
-                <rect
-                  x={x - 6}
-                  y={bodyTop}
-                  width={12}
-                  height={bodyH}
-                  fill={color}
-                  opacity={0.85}
-                  rx="1"
-                  style={{ filter: c.green && i >= 5 ? `drop-shadow(0 0 4px ${color}80)` : 'none' }}
-                />
-              </g>
-            )
-          })}
-        </svg>
-
-        {/* Bottom stats */}
-        <div className="flex items-center justify-between mt-4 pt-4 border-t border-white/5">
+        {/* Stats row */}
+        <div className="flex items-center justify-between pt-3 border-t border-gray-100">
           {[
-            { label: 'Win Rate', value: '71%', color: 'text-amber-400' },
-            { label: 'Trades', value: '47', color: 'text-white' },
-            { label: 'Profit Factor', value: '2.1x', color: 'text-emerald-400' },
+            { label: 'Win Rate', value: '71%', color: 'text-amber-500' },
+            { label: 'Trades', value: '47', color: 'text-gray-700' },
+            { label: 'Profit Factor', value: '2.1x', color: 'text-emerald-500' },
           ].map((s) => (
             <div key={s.label} className="text-center">
               <div className={`text-lg font-black ${s.color}`}>{s.value}</div>
-              <div className="text-xs text-gray-600">{s.label}</div>
+              <div className="text-xs text-gray-400">{s.label}</div>
             </div>
           ))}
         </div>
-
-        {/* Hover CTA */}
-        <div
-          className={`absolute inset-0 rounded-3xl flex items-center justify-center transition-all duration-300 ${hovered ? 'opacity-100' : 'opacity-0'}`}
-          style={{ background: 'radial-gradient(circle at center, rgba(245,158,11,0.1) 0%, transparent 70%)' }}
-        />
       </div>
 
       {/* Floating badges */}
       <div className="absolute -right-4 top-8 animate-float">
-        <div className="glass rounded-xl px-3 py-2 text-xs font-bold text-emerald-400 border border-emerald-500/20">
+        <div className="bg-white border border-emerald-200 rounded-xl px-3 py-2 text-xs font-bold text-emerald-600 shadow-md">
           +$1,240 ✓
         </div>
       </div>
       <div className="absolute -left-4 bottom-12" style={{ animation: 'float 5s ease-in-out infinite 1s' }}>
-        <div className="glass rounded-xl px-3 py-2 text-xs font-bold text-amber-400 border border-amber-500/20">
+        <div className="bg-white border border-amber-200 rounded-xl px-3 py-2 text-xs font-bold text-amber-600 shadow-md">
           68.4% WR 🏆
+        </div>
+      </div>
+
+      {/* Emotion card below */}
+      <div className="glass rounded-xl p-4 mt-3 flex items-center justify-between shadow-sm">
+        <div className="text-xs text-gray-500">Today&apos;s Emotional Check-In</div>
+        <div className="flex gap-1.5">
+          {['😤', '😐', '😊', '🔥', '💪'].map((e, i) => (
+            <div key={i} className={`w-7 h-7 rounded-lg flex items-center justify-center text-sm transition-all ${i === 4 ? 'bg-amber-100 border border-amber-300 scale-110' : 'bg-gray-50 border border-gray-100'}`}>
+              {e}
+            </div>
+          ))}
         </div>
       </div>
     </div>
   )
 }
 
-// Fade-in with delay — CSS-animation-based so it works on first paint without JS
 function FadeIn({ children, delay = 0, className = '' }: { children: React.ReactNode; delay?: number; className?: string }) {
   return (
     <div
@@ -217,33 +113,33 @@ export default function LandingPage() {
   }, [session, router])
 
   return (
-    <div className="min-h-screen bg-[#0f0f0f] overflow-x-hidden">
+    <div className="min-h-screen bg-white overflow-x-hidden">
       {/* Nav */}
       <FadeIn delay={100}>
-        <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4 flex items-center justify-between border-b border-white/5 bg-[#0f0f0f]/90 backdrop-blur-xl">
+        <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4 flex items-center justify-between border-b border-gray-100 bg-white/95 backdrop-blur-xl">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/30">
-              <TrendingUp className="w-5 h-5 text-black" />
+            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-md shadow-amber-500/20">
+              <TrendingUp className="w-5 h-5 text-white" />
             </div>
             <div>
-              <span className="font-bold text-white text-lg tracking-tight">Midas</span>
-              <span className="font-bold text-amber-400 text-lg tracking-tight"> Edge</span>
+              <span className="font-bold text-gray-900 text-lg tracking-tight">Midas</span>
+              <span className="font-bold text-amber-500 text-lg tracking-tight"> Edge</span>
             </div>
           </div>
-          <div className="hidden md:flex items-center gap-8 text-sm text-gray-400">
-            <a href="#features" className="hover:text-amber-400 transition-colors">Features</a>
-            <a href="#strategy" className="hover:text-amber-400 transition-colors">Platform</a>
-            <a href="#community" className="hover:text-amber-400 transition-colors">Community</a>
+          <div className="hidden md:flex items-center gap-8 text-sm text-gray-500">
+            <a href="#features" className="hover:text-amber-500 transition-colors">Features</a>
+            <a href="#strategy" className="hover:text-amber-500 transition-colors">Platform</a>
+            <a href="#community" className="hover:text-amber-500 transition-colors">Community</a>
           </div>
           <div className="flex items-center gap-3">
-            <Link href="/login" className="text-sm text-gray-400 hover:text-white transition-colors px-4 py-2">
+            <Link href="/login" className="text-sm text-gray-600 hover:text-gray-900 transition-colors px-4 py-2 rounded-lg hover:bg-gray-50">
               Sign In
             </Link>
             <a
               href="https://www.skool.com/midas-touch-challenge-5991/about"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm bg-gradient-to-r from-amber-500 to-orange-500 text-black font-semibold px-5 py-2 rounded-lg hover:shadow-lg hover:shadow-amber-500/30 transition-all"
+              className="text-sm bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold px-5 py-2 rounded-lg hover:shadow-md hover:shadow-amber-500/25 transition-all"
             >
               Join Midas Touch
             </a>
@@ -252,39 +148,35 @@ export default function LandingPage() {
       </FadeIn>
 
       {/* Hero */}
-      <section className="relative min-h-screen flex items-center pt-20">
-        {/* Background */}
+      <section className="relative min-h-screen flex items-center pt-20 bg-white">
+        {/* Subtle background */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[900px] h-[900px] rounded-full blur-3xl" style={{ background: 'rgba(245,158,11,0.04)' }} />
-          <div className="absolute inset-0" style={{
-            backgroundImage: 'linear-gradient(rgba(245,158,11,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(245,158,11,0.025) 1px, transparent 1px)',
-            backgroundSize: '60px 60px'
-          }} />
+          <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-amber-50 rounded-full blur-3xl opacity-60" />
+          <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-orange-50 rounded-full blur-3xl opacity-40" />
         </div>
 
         <div className="relative z-10 w-full max-w-7xl mx-auto px-6 py-20 grid lg:grid-cols-2 gap-16 items-center">
           {/* Left: text */}
           <div>
             <FadeIn delay={200}>
-              <div className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 rounded-full px-4 py-2 mb-8">
+              <div className="inline-flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-full px-4 py-2 mb-8">
                 <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-                <span className="text-amber-400 text-sm font-medium">Included with Midas Touch Membership</span>
+                <span className="text-amber-700 text-sm font-medium">Included with Midas Touch Membership</span>
               </div>
             </FadeIn>
 
             <FadeIn delay={400}>
-              <h1 className="text-5xl lg:text-7xl font-black tracking-tight mb-6 leading-[1.05]">
-                <span className="text-white block">Track. Scale.</span>
-                <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-amber-300 bg-clip-text text-transparent block">
-                  Analyze.
+              <h1 className="text-5xl lg:text-6xl font-black tracking-tight mb-6 leading-[1.05]">
+                <span className="text-gray-900 block">Your Edge in</span>
+                <span className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-400 bg-clip-text text-transparent block">
+                  Every Trade.
                 </span>
-                <span className="text-white block text-4xl lg:text-5xl mt-2">All in one place.</span>
               </h1>
             </FadeIn>
 
             <FadeIn delay={600}>
-              <p className="text-lg text-gray-400 max-w-lg mb-10 leading-relaxed">
-                Midas Edge is your complete trading toolkit — journal every trade, copy top performers, get AI-powered insights, and track your path to funded payouts. Built exclusively for the Midas Touch community.
+              <p className="text-lg text-gray-600 max-w-lg mb-10 leading-relaxed">
+                Midas Edge is your complete trading toolkit — journal every trade, track emotions, get AI coaching, and analyze your performance. Built exclusively for the Midas Touch community.
               </p>
             </FadeIn>
 
@@ -294,19 +186,19 @@ export default function LandingPage() {
                   href="https://www.skool.com/midas-touch-challenge-5991/about"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-500 text-black font-bold px-8 py-4 rounded-xl text-lg hover:shadow-xl hover:shadow-amber-500/40 transition-all transform hover:scale-105"
+                  className="group flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold px-8 py-4 rounded-xl text-lg hover:shadow-xl hover:shadow-amber-500/30 transition-all transform hover:scale-105"
                 >
                   Join Midas Touch
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </a>
-                <Link href="/login" className="flex items-center gap-2 bg-white/5 border border-white/10 text-white font-medium px-8 py-4 rounded-xl text-lg hover:bg-white/10 transition-all">
+                <Link href="/login" className="flex items-center gap-2 bg-white border border-gray-200 text-gray-700 font-medium px-8 py-4 rounded-xl text-lg hover:border-gray-300 hover:bg-gray-50 transition-all shadow-sm">
                   Sign In
                 </Link>
               </div>
             </FadeIn>
 
             <FadeIn delay={900}>
-              <p className="text-xs text-gray-600 mb-8">
+              <p className="text-xs text-gray-400 mb-8">
                 Midas Edge is included with your Midas Touch membership — no separate subscription needed.
               </p>
             </FadeIn>
@@ -319,7 +211,7 @@ export default function LandingPage() {
                   { value: 'AI', label: 'Powered' },
                 ].map((stat) => (
                   <div key={stat.label}>
-                    <div className="text-2xl font-black text-amber-400">{stat.value}</div>
+                    <div className="text-2xl font-black text-amber-500">{stat.value}</div>
                     <div className="text-sm text-gray-500">{stat.label}</div>
                   </div>
                 ))}
@@ -327,41 +219,41 @@ export default function LandingPage() {
             </FadeIn>
           </div>
 
-          {/* Right: interactive chart */}
+          {/* Right: dashboard mockup */}
           <FadeIn delay={600} className="w-full">
-            <AnimatedChart />
+            <DashboardMockup />
           </FadeIn>
         </div>
       </section>
 
       {/* Features */}
-      <section id="features" className="py-32 px-6">
+      <section id="features" className="py-28 px-6 bg-gray-50">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-20">
+          <div className="text-center mb-16">
             <FadeIn delay={0}>
-              <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-2 mb-6">
-                <Zap className="w-3.5 h-3.5 text-amber-400" />
-                <span className="text-gray-400 text-sm">The complete trading toolkit</span>
+              <div className="inline-flex items-center gap-2 bg-white border border-gray-200 rounded-full px-4 py-2 mb-6 shadow-sm">
+                <Zap className="w-3.5 h-3.5 text-amber-500" />
+                <span className="text-gray-600 text-sm">The complete trading toolkit</span>
               </div>
-              <h2 className="text-4xl md:text-5xl font-black text-white mb-4">Everything in One Platform</h2>
-              <p className="text-gray-400 text-lg max-w-xl mx-auto">Journal, copy trade, get AI insights, track payouts — all built for the Midas Touch community</p>
+              <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-4">Everything in One Platform</h2>
+              <p className="text-gray-500 text-lg max-w-xl mx-auto">Journal, get AI coaching, track payouts — all built for the Midas Touch community</p>
             </FadeIn>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
             {[
-              { icon: Shield, title: 'Trade Journal', desc: 'Log every trade with screenshots, notes, emotions, and lessons. Full session review after each trade.', color: 'text-amber-400', bg: 'bg-amber-400/10', border: 'hover:border-amber-500/30' },
-              { icon: Copy, title: 'Copy Trading', desc: 'Connect multiple prop firm accounts and mirror trades across all of them instantly. One trade, every account.', color: 'text-blue-400', bg: 'bg-blue-400/10', border: 'hover:border-blue-500/30' },
-              { icon: Brain, title: 'AI Assistant', desc: 'Your personal AI trading coach. Ask about setups, review your journal, get feedback on your edge.', color: 'text-purple-400', bg: 'bg-purple-400/10', border: 'hover:border-purple-500/30' },
-              { icon: BarChart3, title: 'Advanced Analytics', desc: 'Win rate, profit factor, avg win/loss, drawdown, instrument breakdown — every metric that matters.', color: 'text-emerald-400', bg: 'bg-emerald-400/10', border: 'hover:border-emerald-500/30' },
-              { icon: Users, title: 'Community Post Generator', desc: 'Turn your winning trades into engaging Skool posts with one click. Built-in post templates.', color: 'text-pink-400', bg: 'bg-pink-400/10', border: 'hover:border-pink-500/30' },
-              { icon: DollarSign, title: 'Payout Tracker', desc: 'Track your prop firm challenge progress and payouts. Know exactly where you stand at all times.', color: 'text-orange-400', bg: 'bg-orange-400/10', border: 'hover:border-orange-500/30' },
+              { icon: Shield, title: 'Trade Journal', desc: 'Log every trade with emotional check-ins, notes, and commitment cards. Full session review every time.', color: 'text-amber-500', bg: 'bg-amber-50', border: 'hover:border-amber-300' },
+              { icon: Copy, title: 'Copy Trading', desc: 'Connect multiple prop firm accounts and mirror trades across all of them instantly. One trade, every account.', color: 'text-blue-500', bg: 'bg-blue-50', border: 'hover:border-blue-300' },
+              { icon: Brain, title: 'AI Trade Coach', desc: 'Your personal AI trading coach powered by Claude. Get feedback on every trade based on your strategy and emotions.', color: 'text-purple-500', bg: 'bg-purple-50', border: 'hover:border-purple-300' },
+              { icon: BarChart3, title: 'Clean Analytics', desc: 'Win rate, profit factor, avg win/loss, drawdown — every metric that matters, beautifully presented.', color: 'text-emerald-500', bg: 'bg-emerald-50', border: 'hover:border-emerald-300' },
+              { icon: Users, title: 'Community Posts', desc: 'Turn your winning trades into engaging Skool posts with one click. Built-in templates for the community.', color: 'text-pink-500', bg: 'bg-pink-50', border: 'hover:border-pink-300' },
+              { icon: DollarSign, title: 'Payout Tracker', desc: 'Track your prop firm challenge progress and payouts. Know exactly where you stand at all times.', color: 'text-orange-500', bg: 'bg-orange-50', border: 'hover:border-orange-300' },
             ].map((feature) => (
               <div key={feature.title} className={`glass rounded-2xl p-6 ${feature.border} transition-all group cursor-default`}>
                 <div className={`w-12 h-12 rounded-xl ${feature.bg} flex items-center justify-center mb-5 group-hover:scale-110 transition-transform`}>
                   <feature.icon className={`w-6 h-6 ${feature.color}`} />
                 </div>
-                <h3 className="font-bold text-white text-lg mb-2">{feature.title}</h3>
-                <p className="text-gray-400 text-sm leading-relaxed">{feature.desc}</p>
+                <h3 className="font-bold text-gray-900 text-lg mb-2">{feature.title}</h3>
+                <p className="text-gray-500 text-sm leading-relaxed">{feature.desc}</p>
               </div>
             ))}
           </div>
@@ -369,20 +261,20 @@ export default function LandingPage() {
       </section>
 
       {/* Platform section */}
-      <section id="strategy" className="py-32 px-6 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-amber-500/5 via-transparent to-transparent pointer-events-none" />
+      <section id="strategy" className="py-28 px-6 bg-white relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-amber-50 rounded-full blur-3xl opacity-60" />
         <div className="max-w-5xl mx-auto relative z-10">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div>
-              <div className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 rounded-full px-4 py-2 mb-8">
-                <Star className="w-4 h-4 text-amber-400" />
-                <span className="text-amber-400 text-sm font-medium">Built for Midas Touch Members</span>
+              <div className="inline-flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-full px-4 py-2 mb-8">
+                <Star className="w-4 h-4 text-amber-500" />
+                <span className="text-amber-700 text-sm font-medium">Built for Midas Touch Members</span>
               </div>
-              <h2 className="text-4xl font-black text-white mb-6 leading-tight">
+              <h2 className="text-4xl font-black text-gray-900 mb-6 leading-tight">
                 Your Edge.<br />
-                <span className="text-amber-400">Tracked and Sharpened.</span>
+                <span className="text-amber-500">Tracked and Sharpened.</span>
               </h2>
-              <p className="text-gray-400 leading-relaxed mb-8">
+              <p className="text-gray-600 leading-relaxed mb-8">
                 Midas Edge is not a generic trading journal. Every feature is designed around how the Midas Touch community trades — Crazy Horse ORB, prop firm challenges, and the push toward consistent funded payouts.
               </p>
               <div className="space-y-4">
@@ -391,9 +283,9 @@ export default function LandingPage() {
                   { label: 'Prop firm challenge progress tracking', icon: '🎯' },
                   { label: 'Instrument performance breakdown (NQ, ES, MNQ)', icon: '📊' },
                   { label: 'AI pattern recognition across your trades', icon: '🤖' },
-                  { label: 'Copy trade insights from top community members', icon: '👥' },
+                  { label: 'Emotional check-ins to protect discipline', icon: '🧠' },
                 ].map((item) => (
-                  <div key={item.label} className="flex items-center gap-3 text-gray-300">
+                  <div key={item.label} className="flex items-center gap-3 text-gray-700">
                     <span>{item.icon}</span>
                     <span className="text-sm">{item.label}</span>
                   </div>
@@ -403,7 +295,7 @@ export default function LandingPage() {
                 href="https://www.skool.com/midas-touch-challenge-5991/about"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 mt-10 bg-gradient-to-r from-amber-500 to-orange-500 text-black font-bold px-8 py-4 rounded-xl hover:shadow-xl hover:shadow-amber-500/30 transition-all"
+                className="inline-flex items-center gap-2 mt-10 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold px-8 py-4 rounded-xl hover:shadow-xl hover:shadow-amber-500/25 transition-all"
               >
                 Join Midas Touch to Get Access
                 <ChevronRight className="w-5 h-5" />
@@ -412,13 +304,13 @@ export default function LandingPage() {
             {/* Mini stats cards */}
             <div className="grid grid-cols-2 gap-4">
               {[
-                { title: 'Daily Streak', value: '14 days 🔥', color: 'text-amber-400' },
-                { title: 'Best Day', value: '+$2,140', color: 'text-emerald-400' },
-                { title: 'Prop Payouts', value: '$8,500', color: 'text-purple-400' },
-                { title: 'Community Rank', value: '#47 / 14.4K', color: 'text-blue-400' },
+                { title: 'Daily Streak', value: '14 days 🔥', color: 'text-amber-500' },
+                { title: 'Best Day', value: '+$2,140', color: 'text-emerald-500' },
+                { title: 'Prop Payouts', value: '$8,500', color: 'text-purple-500' },
+                { title: 'Community Rank', value: '#47 / 14.4K', color: 'text-blue-500' },
               ].map((card) => (
-                <div key={card.title} className="glass rounded-2xl p-5 hover:border-amber-500/20 transition-all">
-                  <div className="text-xs text-gray-500 mb-1">{card.title}</div>
+                <div key={card.title} className="glass rounded-2xl p-5 hover:border-amber-200 transition-all shadow-sm">
+                  <div className="text-xs text-gray-400 mb-1">{card.title}</div>
                   <div className={`text-xl font-black ${card.color}`}>{card.value}</div>
                 </div>
               ))}
@@ -428,31 +320,31 @@ export default function LandingPage() {
       </section>
 
       {/* CTA */}
-      <section id="community" className="py-32 px-6">
+      <section id="community" className="py-28 px-6 bg-gray-50">
         <div className="max-w-4xl mx-auto">
-          <div className="relative glass-gold rounded-3xl p-16 text-center overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-orange-500/5" />
-            <div className="absolute -top-20 -right-20 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl" />
+          <div className="relative glass-gold rounded-3xl p-16 text-center overflow-hidden shadow-lg">
+            <div className="absolute inset-0 bg-gradient-to-br from-amber-50 to-orange-50" />
+            <div className="absolute -top-20 -right-20 w-64 h-64 bg-amber-200/30 rounded-full blur-3xl" />
             <div className="relative z-10">
               <div className="text-5xl mb-6">🏆</div>
-              <h2 className="text-4xl md:text-5xl font-black text-white mb-4">
-                Ready to <span className="text-amber-400">Touch Gold?</span>
+              <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-4">
+                Ready to <span className="text-amber-500">Touch Gold?</span>
               </h2>
-              <p className="text-gray-400 text-lg mb-4 max-w-lg mx-auto">
+              <p className="text-gray-600 text-lg mb-4 max-w-lg mx-auto">
                 Midas Edge is included with your Midas Touch membership. Join the community and get instant access to the full platform.
               </p>
-              <p className="text-amber-400/60 text-sm mb-10">Already a member? Sign in below.</p>
+              <p className="text-amber-600/70 text-sm mb-10">Already a member? Sign in below.</p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <a
                   href="https://www.skool.com/midas-touch-challenge-5991/about"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-500 text-black font-bold px-12 py-5 rounded-xl text-xl hover:shadow-2xl hover:shadow-amber-500/40 transition-all transform hover:scale-105"
+                  className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold px-12 py-5 rounded-xl text-xl hover:shadow-2xl hover:shadow-amber-500/30 transition-all transform hover:scale-105"
                 >
                   Join Midas Touch
                   <ArrowRight className="w-6 h-6" />
                 </a>
-                <Link href="/login" className="inline-flex items-center gap-2 bg-white/5 border border-white/10 text-white font-semibold px-8 py-5 rounded-xl text-lg hover:bg-white/10 transition-all">
+                <Link href="/login" className="inline-flex items-center gap-2 bg-white border border-gray-200 text-gray-700 font-semibold px-8 py-5 rounded-xl text-lg hover:border-gray-300 hover:bg-gray-50 transition-all shadow-sm">
                   Sign In
                 </Link>
               </div>
@@ -462,15 +354,15 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="py-12 px-6 border-t border-white/5">
+      <footer className="py-12 px-6 border-t border-gray-100 bg-white">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
-              <TrendingUp className="w-4 h-4 text-black" />
+              <TrendingUp className="w-4 h-4 text-white" />
             </div>
-            <span className="font-bold text-white">Midas Edge</span>
+            <span className="font-bold text-gray-900">Midas Edge</span>
           </div>
-          <p className="text-gray-600 text-sm">© 2026 The Midas Touch Trading Group. Built for the Midas Touch community.</p>
+          <p className="text-gray-400 text-sm">© 2026 The Midas Touch Trading Group. Built for the Midas Touch community.</p>
         </div>
       </footer>
 

@@ -50,24 +50,24 @@ export function Sidebar() {
 
   return (
     <aside className={cn(
-      'relative flex flex-col bg-[#111111] border-r border-white/5 transition-all duration-300 h-screen sticky top-0',
+      'relative flex flex-col bg-white border-r border-gray-200 transition-all duration-300 h-screen sticky top-0',
       collapsed ? 'w-16' : 'w-60'
     )}>
       {/* Logo */}
-      <div className="flex items-center gap-3 px-4 py-5 border-b border-white/5">
-        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center flex-shrink-0 shadow-md shadow-amber-500/30">
-          <TrendingUp className="w-4 h-4 text-black" />
+      <div className="flex items-center gap-3 px-4 py-5 border-b border-gray-100">
+        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center flex-shrink-0 shadow-sm shadow-amber-500/20">
+          <TrendingUp className="w-4 h-4 text-white" />
         </div>
         {!collapsed && (
           <div className="overflow-hidden">
-            <div className="font-black text-white text-sm tracking-tight whitespace-nowrap">Midas Edge</div>
-            <div className="text-amber-400/60 text-xs whitespace-nowrap">Midas Touch</div>
+            <div className="font-black text-gray-900 text-sm tracking-tight whitespace-nowrap">Midas Edge</div>
+            <div className="text-amber-600 text-xs whitespace-nowrap">Midas Touch</div>
           </div>
         )}
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-2 py-4 space-y-1">
+      <nav className="flex-1 px-2 py-4 space-y-0.5">
         {navItems.map((item) => {
           const active = pathname === item.href || (item.href !== '/dashboard' && item.href !== '/market-overview' && pathname.startsWith(item.href))
           return (
@@ -77,21 +77,21 @@ export function Sidebar() {
               className={cn(
                 'flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group',
                 active
-                  ? 'bg-amber-500/15 border border-amber-500/25 text-amber-400'
-                  : 'text-gray-500 hover:text-gray-200 hover:bg-white/5',
+                  ? 'bg-amber-50 border border-amber-200 text-amber-700'
+                  : 'text-gray-500 hover:text-gray-800 hover:bg-gray-50',
                 collapsed && 'justify-center px-2'
               )}
               title={collapsed ? item.label : undefined}
             >
               <item.icon className={cn(
-                'w-5 h-5 flex-shrink-0 transition-colors',
-                active ? 'text-amber-400' : 'group-hover:text-gray-200'
+                'w-4 h-4 flex-shrink-0 transition-colors',
+                active ? 'text-amber-600' : 'group-hover:text-gray-700'
               )} />
               {!collapsed && (
                 <span className="text-sm font-medium whitespace-nowrap">{item.label}</span>
               )}
               {active && !collapsed && (
-                <div className="ml-auto w-1.5 h-1.5 rounded-full bg-amber-400" />
+                <div className="ml-auto w-1.5 h-1.5 rounded-full bg-amber-500" />
               )}
             </Link>
           )
@@ -99,22 +99,22 @@ export function Sidebar() {
       </nav>
 
       {/* User */}
-      <div className="border-t border-white/5 p-3">
+      <div className="border-t border-gray-100 p-3">
         {!collapsed && session?.user && (
           <div className="flex items-center gap-3 px-2 py-2 mb-2">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-black font-bold text-sm flex-shrink-0">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
               {session.user.name?.[0]?.toUpperCase() || session.user.email?.[0]?.toUpperCase() || 'M'}
             </div>
             <div className="overflow-hidden flex-1">
-              <div className="text-sm font-medium text-white truncate">{session.user.name || 'Trader'}</div>
-              <div className="text-xs text-gray-500 truncate">{session.user.email}</div>
+              <div className="text-sm font-medium text-gray-900 truncate">{session.user.name || 'Trader'}</div>
+              <div className="text-xs text-gray-400 truncate">{session.user.email}</div>
             </div>
           </div>
         )}
         <button
           onClick={() => signOut({ callbackUrl: '/' })}
           className={cn(
-            'flex items-center gap-3 w-full px-3 py-2 rounded-xl text-gray-500 hover:text-red-400 hover:bg-red-400/10 transition-all',
+            'flex items-center gap-3 w-full px-3 py-2 rounded-xl text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all',
             collapsed && 'justify-center px-2'
           )}
           title={collapsed ? 'Sign Out' : undefined}
@@ -127,7 +127,7 @@ export function Sidebar() {
       {/* Collapse toggle */}
       <button
         onClick={() => setCollapsed(!collapsed)}
-        className="absolute -right-3 top-20 w-6 h-6 rounded-full bg-[#1a1a1a] border border-white/10 flex items-center justify-center text-gray-400 hover:text-white hover:border-amber-500/30 transition-all z-10"
+        className="absolute -right-3 top-20 w-6 h-6 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-400 hover:text-amber-600 hover:border-amber-300 transition-all z-10 shadow-sm"
       >
         {collapsed ? <ChevronRight className="w-3 h-3" /> : <ChevronLeft className="w-3 h-3" />}
       </button>

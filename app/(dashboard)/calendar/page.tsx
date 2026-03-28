@@ -99,9 +99,9 @@ const mockDayData: Record<string, DayData> = {
 }
 
 const emotionIcon = {
-  good: { icon: Smile, color: 'text-emerald-400' },
-  neutral: { icon: Meh, color: 'text-amber-400' },
-  bad: { icon: Frown, color: 'text-red-400' },
+  good: { icon: Smile, color: 'text-emerald-500' },
+  neutral: { icon: Meh, color: 'text-amber-500' },
+  bad: { icon: Frown, color: 'text-red-500' },
 }
 
 export default function CalendarPage() {
@@ -144,16 +144,16 @@ export default function CalendarPage() {
     <div className="p-8 relative">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-black text-white">Trading Calendar</h1>
+          <h1 className="text-2xl font-black text-gray-900">Trading Calendar</h1>
           <p className="text-gray-500 mt-1">Your daily P&amp;L at a glance — click any day for details</p>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 text-sm text-gray-400">
-            <div className="w-3 h-3 rounded-sm bg-emerald-500/40 border border-emerald-500/60" />
+          <div className="flex items-center gap-2 text-sm text-gray-500">
+            <div className="w-3 h-3 rounded-sm bg-emerald-200 border border-emerald-400" />
             Green day
           </div>
-          <div className="flex items-center gap-2 text-sm text-gray-400">
-            <div className="w-3 h-3 rounded-sm bg-red-500/40 border border-red-500/60" />
+          <div className="flex items-center gap-2 text-sm text-gray-500">
+            <div className="w-3 h-3 rounded-sm bg-red-200 border border-red-400" />
             Red day
           </div>
         </div>
@@ -162,10 +162,10 @@ export default function CalendarPage() {
       {/* Stats */}
       <div className="grid grid-cols-4 gap-4 mb-8">
         {[
-          { label: 'Monthly P&L', value: formatCurrency(totalPnl), color: 'text-emerald-400' },
-          { label: 'Green Days', value: greenDays, color: 'text-emerald-400' },
-          { label: 'Red Days', value: redDays, color: 'text-red-400' },
-          { label: 'Win Rate', value: `${((greenDays / (greenDays + redDays)) * 100).toFixed(0)}%`, color: 'text-amber-400' },
+          { label: 'Monthly P&L', value: formatCurrency(totalPnl), color: 'text-emerald-600' },
+          { label: 'Green Days', value: greenDays, color: 'text-emerald-600' },
+          { label: 'Red Days', value: redDays, color: 'text-red-500' },
+          { label: 'Win Rate', value: `${((greenDays / (greenDays + redDays)) * 100).toFixed(0)}%`, color: 'text-amber-600' },
         ].map((s) => (
           <div key={s.label} className="glass rounded-2xl p-4">
             <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">{s.label}</div>
@@ -177,19 +177,19 @@ export default function CalendarPage() {
       {/* Calendar */}
       <div className="glass rounded-2xl p-6">
         <div className="flex items-center justify-between mb-6">
-          <button onClick={() => setCurrentDate(new Date(year, month - 1))} className="p-2 rounded-xl hover:bg-white/10 transition-all">
-            <ChevronLeft className="w-5 h-5 text-gray-400" />
+          <button onClick={() => setCurrentDate(new Date(year, month - 1))} className="p-2 rounded-xl hover:bg-gray-100 transition-all">
+            <ChevronLeft className="w-5 h-5 text-gray-500" />
           </button>
-          <h2 className="text-lg font-bold text-white">{monthName}</h2>
-          <button onClick={() => setCurrentDate(new Date(year, month + 1))} className="p-2 rounded-xl hover:bg-white/10 transition-all">
-            <ChevronRight className="w-5 h-5 text-gray-400" />
+          <h2 className="text-lg font-bold text-gray-900">{monthName}</h2>
+          <button onClick={() => setCurrentDate(new Date(year, month + 1))} className="p-2 rounded-xl hover:bg-gray-100 transition-all">
+            <ChevronRight className="w-5 h-5 text-gray-500" />
           </button>
         </div>
 
         {/* Day headers */}
         <div className="grid grid-cols-7 mb-2">
           {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((d) => (
-            <div key={d} className="text-center text-xs font-medium text-gray-500 py-2">{d}</div>
+            <div key={d} className="text-center text-xs font-medium text-gray-400 py-2">{d}</div>
           ))}
         </div>
 
@@ -207,23 +207,23 @@ export default function CalendarPage() {
                   'aspect-square rounded-xl p-1 flex flex-col items-center justify-center transition-all hover:scale-105 focus:outline-none',
                   data
                     ? data.pnl > 0
-                      ? 'bg-emerald-500/20 border border-emerald-500/30 hover:border-emerald-500/60'
-                      : 'bg-red-500/20 border border-red-500/30 hover:border-red-500/60'
-                    : 'bg-white/3 border border-transparent hover:border-white/10',
-                  isToday && 'ring-2 ring-amber-500',
-                  isSelected && 'ring-2 ring-amber-400 scale-105'
+                      ? 'bg-emerald-50 border border-emerald-300 hover:border-emerald-500'
+                      : 'bg-red-50 border border-red-300 hover:border-red-500'
+                    : 'bg-gray-50 border border-transparent hover:border-gray-200',
+                  isToday && 'ring-2 ring-amber-400',
+                  isSelected && 'ring-2 ring-amber-500 scale-105'
                 )}
               >
                 <span className={cn(
                   'text-sm font-semibold',
-                  data ? (data.pnl > 0 ? 'text-emerald-400' : 'text-red-400') : 'text-gray-600'
+                  data ? (data.pnl > 0 ? 'text-emerald-700' : 'text-red-600') : 'text-gray-400'
                 )}>
                   {day}
                 </span>
                 {data && (
                   <span className={cn(
                     'text-xs font-bold mt-0.5',
-                    data.pnl > 0 ? 'text-emerald-400' : 'text-red-400'
+                    data.pnl > 0 ? 'text-emerald-600' : 'text-red-500'
                   )}>
                     {data.pnl > 0 ? '+' : ''}{Math.abs(data.pnl) > 999 ? `${(data.pnl/1000).toFixed(1)}k` : data.pnl}
                   </span>
@@ -237,25 +237,25 @@ export default function CalendarPage() {
       {/* Slide-over backdrop */}
       {panelOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 transition-opacity"
+          className="fixed inset-0 bg-black/30 z-40 transition-opacity"
           onClick={closePanel}
         />
       )}
 
       {/* Slide-over panel */}
       <div className={cn(
-        'fixed top-0 right-0 h-full w-full max-w-md bg-[#111111] border-l border-white/10 z-50 flex flex-col transition-transform duration-300 ease-in-out',
+        'fixed top-0 right-0 h-full w-full max-w-md bg-white border-l border-gray-200 z-50 flex flex-col transition-transform duration-300 ease-in-out shadow-xl',
         panelOpen ? 'translate-x-0' : 'translate-x-full'
       )}>
         {/* Panel header */}
-        <div className="flex items-start justify-between px-6 py-5 border-b border-white/5">
+        <div className="flex items-start justify-between px-6 py-5 border-b border-gray-100">
           <div>
-            <p className="text-xs text-gray-500 mb-0.5">Day Detail</p>
-            <h3 className="font-black text-white text-lg leading-tight">{selectedDateLabel}</h3>
+            <p className="text-xs text-gray-400 mb-0.5">Day Detail</p>
+            <h3 className="font-black text-gray-900 text-lg leading-tight">{selectedDateLabel}</h3>
             {selectedData && (
               <div className={cn(
                 'text-2xl font-black mt-1',
-                selectedData.pnl > 0 ? 'text-emerald-400' : 'text-red-400'
+                selectedData.pnl > 0 ? 'text-emerald-600' : 'text-red-500'
               )}>
                 {selectedData.pnl > 0 ? '+' : ''}{formatCurrency(selectedData.pnl)}
               </div>
@@ -263,7 +263,7 @@ export default function CalendarPage() {
           </div>
           <button
             onClick={closePanel}
-            className="p-2 rounded-xl hover:bg-white/10 transition-all text-gray-400 hover:text-white mt-1"
+            className="p-2 rounded-xl hover:bg-gray-100 transition-all text-gray-400 hover:text-gray-700 mt-1"
           >
             <X className="w-5 h-5" />
           </button>
@@ -275,13 +275,13 @@ export default function CalendarPage() {
             <>
               {/* Summary row */}
               <div className="grid grid-cols-2 gap-3">
-                <div className="bg-white/5 rounded-xl p-4">
+                <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
                   <p className="text-xs text-gray-500 mb-1">Trades</p>
-                  <p className="text-xl font-black text-white">{selectedData.trades}</p>
+                  <p className="text-xl font-black text-gray-900">{selectedData.trades}</p>
                 </div>
-                <div className="bg-white/5 rounded-xl p-4">
+                <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
                   <p className="text-xs text-gray-500 mb-1">Result</p>
-                  <p className={cn('text-xl font-black', selectedData.pnl > 0 ? 'text-emerald-400' : 'text-red-400')}>
+                  <p className={cn('text-xl font-black', selectedData.pnl > 0 ? 'text-emerald-600' : 'text-red-500')}>
                     {selectedData.pnl > 0 ? 'Win' : 'Loss'} Day
                   </p>
                 </div>
@@ -290,34 +290,34 @@ export default function CalendarPage() {
               {/* Trade entries */}
               {selectedData.entries && selectedData.entries.length > 0 && (
                 <div className="space-y-3">
-                  <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Trades</h4>
+                  <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Trades</h4>
                   {selectedData.entries.map((trade, i) => {
                     const Emotion = emotionIcon[trade.emotion]
                     return (
-                      <div key={i} className="bg-white/5 rounded-xl p-4 space-y-2">
+                      <div key={i} className="bg-gray-50 border border-gray-100 rounded-xl p-4 space-y-2">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <div className={cn(
                               'w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold',
-                              trade.direction === 'LONG' ? 'bg-emerald-400/10 text-emerald-400' : 'bg-red-400/10 text-red-400'
+                              trade.direction === 'LONG' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-500'
                             )}>
                               {trade.direction === 'LONG' ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
                             </div>
                             <div>
-                              <span className="text-sm font-bold text-white">{trade.instrument}</span>
-                              <span className="text-xs text-gray-500 ml-1.5">{trade.direction}</span>
+                              <span className="text-sm font-bold text-gray-900">{trade.instrument}</span>
+                              <span className="text-xs text-gray-400 ml-1.5">{trade.direction}</span>
                             </div>
                           </div>
-                          <span className={cn('text-sm font-black', trade.pnl > 0 ? 'text-emerald-400' : 'text-red-400')}>
+                          <span className={cn('text-sm font-black', trade.pnl > 0 ? 'text-emerald-600' : 'text-red-500')}>
                             {trade.pnl > 0 ? '+' : ''}{formatCurrency(trade.pnl)}
                           </span>
                         </div>
-                        <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                        <div className="flex items-center gap-1.5 text-xs text-gray-400">
                           <Brain className="w-3 h-3" />
                           {trade.strategy}
                         </div>
                         {trade.note && (
-                          <p className="text-xs text-gray-400 leading-relaxed border-t border-white/5 pt-2">
+                          <p className="text-xs text-gray-600 leading-relaxed border-t border-gray-100 pt-2">
                             &ldquo;{trade.note}&rdquo;
                           </p>
                         )}
@@ -333,20 +333,20 @@ export default function CalendarPage() {
             </>
           ) : (
             <div className="text-center py-16">
-              <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-4">
-                <Plus className="w-6 h-6 text-gray-500" />
+              <div className="w-12 h-12 rounded-2xl bg-gray-100 flex items-center justify-center mx-auto mb-4">
+                <Plus className="w-6 h-6 text-gray-400" />
               </div>
               <p className="text-gray-500 text-sm mb-1">No trades logged for this day</p>
-              <p className="text-gray-600 text-xs">Click the button below to log a trade</p>
+              <p className="text-gray-400 text-xs">Click the button below to log a trade</p>
             </div>
           )}
         </div>
 
         {/* Panel footer */}
-        <div className="px-6 py-4 border-t border-white/5">
+        <div className="px-6 py-4 border-t border-gray-100">
           <Link
             href="/trades/new"
-            className="flex items-center justify-center gap-2 w-full bg-gradient-to-r from-amber-500 to-orange-500 text-black font-bold py-3 rounded-xl hover:shadow-lg hover:shadow-amber-500/30 transition-all"
+            className="flex items-center justify-center gap-2 w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold py-3 rounded-xl hover:shadow-lg hover:shadow-amber-500/25 transition-all"
           >
             <Plus className="w-4 h-4" />
             Add Trade
