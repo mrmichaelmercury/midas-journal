@@ -6,7 +6,6 @@ import { signOut, useSession } from 'next-auth/react'
 import {
   LayoutDashboard,
   BookOpen,
-  PlusCircle,
   Calendar,
   BarChart3,
   Bot,
@@ -28,7 +27,6 @@ import { cn } from '@/lib/utils'
 
 const navItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Trade Dashboard' },
-  { href: '/trades/new', icon: PlusCircle, label: 'Add Trade' },
   { href: '/calendar', icon: Calendar, label: 'Calendar' },
   { href: '/trades', icon: BookOpen, label: 'Trade Journal' },
   { href: '/analytics', icon: BarChart3, label: 'Analytics' },
