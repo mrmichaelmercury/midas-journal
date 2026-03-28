@@ -29,18 +29,19 @@ import { cn } from '@/lib/utils'
 const navItems = [
   { href: '/market-overview', icon: Globe, label: 'Market Overview' },
   { href: '/dashboard', icon: LayoutDashboard, label: 'Trade Dashboard' },
-  { href: '/trades', icon: BookOpen, label: 'Trade Journal' },
   { href: '/trades/new', icon: PlusCircle, label: 'Add Trade' },
+  { href: '/trades', icon: BookOpen, label: 'Trade Journal' },
   { href: '/calendar', icon: Calendar, label: 'Calendar' },
   { href: '/analytics', icon: BarChart3, label: 'Analytics' },
-  { href: '/weekly-review', icon: Sparkles, label: 'Weekly Review' },
-  { href: '/prop-deals', icon: Tag, label: 'Prop Firm Deals' },
-  { href: '/payouts', icon: Wallet, label: 'Payout Tracker' },
-  { href: '/achievements', icon: Trophy, label: 'Achievements' },
   { href: '/ai-assistant', icon: Bot, label: 'AI Assistant' },
-  { href: '/copy-trading', icon: Copy, label: 'Copy Trading' },
-  { href: '/accounts', icon: Link2, label: 'Connected Accounts' },
   { href: '/settings', icon: Settings, label: 'Settings' },
+  // Hidden until ready - uncomment to enable
+  // { href: '/copy-trading', icon: Copy, label: 'Copy Trading' },
+  // { href: '/accounts', icon: Link2, label: 'Connected Accounts' },
+  // { href: '/weekly-review', icon: Sparkles, label: 'Weekly Review' },
+  // { href: '/payouts', icon: Wallet, label: 'Payout Tracker' },
+  // { href: '/achievements', icon: Trophy, label: 'Achievements' },
+  // { href: '/prop-deals', icon: Tag, label: 'Prop Firm Deals' },
 ]
 
 export function Sidebar() {
