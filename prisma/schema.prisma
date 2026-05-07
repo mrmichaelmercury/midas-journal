@@ -175,3 +175,31 @@ model CopyTradeLog {
   executedAt        DateTime @default(now())
   createdAt         DateTime @default(now())
 }
+
+// Trades sent by the Midas Edge Chrome extension. Keyed by Whop license key,
+// not by a journal User — extension users may never sign up for the web app.
+model ExtensionTrade {
+  id           String   @id @default(cuid())
+  memberKey    String
+  memberName   String?
+  date         DateTime
+  instrument   String
+  outcome      String
+  dollarAmount Float
+  accountName  String?
+  direction    String?
+  entryPrice   Float?
+  exitPrice    Float?
+  quantity     Float    @default(1)
+  entryTrigger String?
+  moodBefore   String?
+  moodAfter    String?
+  notes        String?
+  source       String   @default("manual")
+  broker       String?
+  createdAt    DateTime @default(now())
+
+  @@index([memberKey])
+  @@index([date])
+  @@index([createdAt])
+}

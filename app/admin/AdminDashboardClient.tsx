@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import { Users, Key, BarChart3, Search, Plus, ToggleLeft, ToggleRight, Trash2, TrendingUp, LogOut } from 'lucide-react'
+import { Users, Key, BarChart3, Search, Plus, ToggleLeft, ToggleRight, Trash2, TrendingUp, LogOut, Activity } from 'lucide-react'
 import { signOut } from 'next-auth/react'
 import { format } from 'date-fns'
 
@@ -29,14 +29,48 @@ type Stats = {
   newThisMonth: number
 }
 
+type LiveStats = {
+  winRate: number
+  streak: number
+  record: { wins: number; losses: number }
+  totalTrades: number
+  totalPnl: number
+  uniqueMembers: number
+  tradesToday: number
+  tradesThisMonth: number
+}
+
+type ExtensionTrade = {
+  id: string
+  memberKey: string
+  memberName: string | null
+  date: string
+  instrument: string
+  outcome: string
+  dollarAmount: number
+  source: string
+  broker: string | null
+  createdAt: string
+}
+
 type Props = {
   initialUsers: User[]
   initialInviteCodes: InviteCode[]
   stats: Stats
+  liveStats: LiveStats
+  initialTrades: ExtensionTrade[]
 }
 
-export default function AdminDashboardClient({ initialUsers, initialInviteCodes, stats }: Props) {
-  const [tab, setTab] = useState<'users' | 'invites' | 'stats'>('users')
+export default function AdminDashboardClient({
+  initialUsers,
+  initialInviteCodes,
+  stats,
+  liveStats,
+  initialTrades,
+}: Props) {
+  const [tab, setTab] = useState<'users' | 'invites' | 'stats' | 'trades'>('trades')
+  const [trades] = useState(initialTrades)
+  const maskKey = (k: string) => (k.length <= 8 ? k : `${k.slice(0, 4)}…${k.slice(-4)}`)
   const [users, setUsers] = useState(initialUsers)
   const [inviteCodes, setInviteCodes] = useState(initialInviteCodes)
   const [search, setSearch] = useState('')
@@ -146,6 +180,7 @@ export default function AdminDashboardClient({ initialUsers, initialInviteCodes,
         {/* Tabs */}
         <div className="flex gap-1 bg-white/5 rounded-xl p-1 w-fit mb-8">
           {[
+            { key: 'trades', label: 'Live Trades', icon: Activity },
             { key: 'stats', label: 'Stats', icon: BarChart3 },
             { key: 'users', label: 'Users', icon: Users },
             { key: 'invites', label: 'Invite Codes', icon: Key },
@@ -164,6 +199,103 @@ export default function AdminDashboardClient({ initialUsers, initialInviteCodes,
             </button>
           ))}
         </div>
+
+        {/* Live Trades */}
+        {tab === 'trades' && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-black">Live Trades from Chrome Extension</h2>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {[
+                { label: 'Total Trades', value: liveStats.totalTrades, color: 'text-white' },
+                { label: 'Win Rate', value: `${liveStats.winRate}%`, color: 'text-emerald-400' },
+                {
+                  label: 'Record (W/L)',
+                  value: `${liveStats.record.wins} / ${liveStats.record.losses}`,
+                  color: 'text-white',
+                },
+                { label: 'Current Streak', value: liveStats.streak, color: 'text-amber-400' },
+                { label: 'Active Members', value: liveStats.uniqueMembers, color: 'text-white' },
+                { label: 'Trades Today', value: liveStats.tradesToday, color: 'text-emerald-400' },
+                { label: 'Trades This Month', value: liveStats.tradesThisMonth, color: 'text-amber-400' },
+                {
+                  label: 'Net P&L',
+                  value: `${liveStats.totalPnl >= 0 ? '+' : '-'}$${Math.abs(
+                    liveStats.totalPnl
+                  ).toLocaleString()}`,
+                  color: liveStats.totalPnl >= 0 ? 'text-emerald-400' : 'text-red-400',
+                },
+              ].map((s) => (
+                <div key={s.label} className="bg-[#111111] border border-white/5 rounded-2xl p-5">
+                  <div className="text-gray-500 text-xs mb-2">{s.label}</div>
+                  <div className={`text-2xl font-black ${s.color}`}>{s.value}</div>
+                </div>
+              ))}
+            </div>
+
+            <div className="bg-[#111111] border border-white/5 rounded-2xl overflow-hidden">
+              <div className="px-5 py-4 border-b border-white/5 flex items-center justify-between">
+                <h3 className="font-bold text-white">Recent Trades</h3>
+                <span className="text-xs text-gray-500">Showing latest {trades.length}</span>
+              </div>
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-white/5 text-left">
+                    <th className="px-5 py-3 text-xs text-gray-500 font-medium">Date</th>
+                    <th className="px-5 py-3 text-xs text-gray-500 font-medium">Member</th>
+                    <th className="px-5 py-3 text-xs text-gray-500 font-medium">Instrument</th>
+                    <th className="px-5 py-3 text-xs text-gray-500 font-medium">Outcome</th>
+                    <th className="px-5 py-3 text-xs text-gray-500 font-medium text-right">Amount</th>
+                    <th className="px-5 py-3 text-xs text-gray-500 font-medium">Source</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {trades.map((t) => (
+                    <tr
+                      key={t.id}
+                      className="border-b border-white/5 last:border-0 hover:bg-white/2 transition-colors"
+                    >
+                      <td className="px-5 py-3 text-sm text-gray-300">
+                        {format(new Date(t.date), 'MMM d, yyyy')}
+                      </td>
+                      <td className="px-5 py-3">
+                        <div className="text-sm text-white">{t.memberName || '—'}</div>
+                        <code className="text-xs text-gray-500 font-mono">{maskKey(t.memberKey)}</code>
+                      </td>
+                      <td className="px-5 py-3 text-sm text-white font-medium">{t.instrument}</td>
+                      <td className="px-5 py-3">
+                        <span
+                          className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                            t.outcome === 'WIN'
+                              ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                              : 'bg-red-500/20 text-red-400 border border-red-500/30'
+                          }`}
+                        >
+                          {t.outcome}
+                        </span>
+                      </td>
+                      <td
+                        className={`px-5 py-3 text-sm text-right font-mono ${
+                          t.outcome === 'WIN' ? 'text-emerald-400' : 'text-red-400'
+                        }`}
+                      >
+                        {t.outcome === 'WIN' ? '+' : '-'}${Math.abs(t.dollarAmount).toLocaleString()}
+                      </td>
+                      <td className="px-5 py-3 text-xs text-gray-500">{t.source}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {trades.length === 0 && (
+                <div className="text-center py-12 text-gray-500 text-sm">
+                  No trades yet. Once members log trades in the Chrome extension they'll appear here.
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Stats */}
         {tab === 'stats' && (
