@@ -1,17 +1,17 @@
 'use client'
 
-import { useState, useRef } from 'react'
-import { Users, Key, BarChart3, Search, Plus, ToggleLeft, ToggleRight, Trash2, TrendingUp, LogOut, Activity } from 'lucide-react'
+import { useState } from 'react'
+import { Users, Key, BarChart3, Search, Plus, Trash2, TrendingUp, LogOut, Activity } from 'lucide-react'
 import { signOut } from 'next-auth/react'
 import { format } from 'date-fns'
 
-type User = {
-  id: string
-  email: string | null
-  name: string | null
-  role: string
-  isActive: boolean
-  createdAt: Date
+type ExtensionUser = {
+  memberKey: string
+  memberName: string | null
+  tradeCount: number
+  lastTradeDate: string
+  totalPnl: number
+  winRate: number
 }
 
 type InviteCode = {
@@ -54,7 +54,7 @@ type ExtensionTrade = {
 }
 
 type Props = {
-  initialUsers: User[]
+  initialExtensionUsers: ExtensionUser[]
   initialInviteCodes: InviteCode[]
   stats: Stats
   liveStats: LiveStats
@@ -62,7 +62,7 @@ type Props = {
 }
 
 export default function AdminDashboardClient({
-  initialUsers,
+  initialExtensionUsers,
   initialInviteCodes,
   stats,
   liveStats,
@@ -71,32 +71,17 @@ export default function AdminDashboardClient({
   const [tab, setTab] = useState<'users' | 'invites' | 'stats' | 'trades'>('trades')
   const [trades] = useState(initialTrades)
   const maskKey = (k: string) => (k.length <= 8 ? k : `${k.slice(0, 4)}…${k.slice(-4)}`)
-  const [users, setUsers] = useState(initialUsers)
+  const [extensionUsers] = useState(initialExtensionUsers)
   const [inviteCodes, setInviteCodes] = useState(initialInviteCodes)
   const [search, setSearch] = useState('')
   const [newCodeDays, setNewCodeDays] = useState(30)
   const [creatingCode, setCreatingCode] = useState(false)
-  const [csvError, setCsvError] = useState('')
-  const fileRef = useRef<HTMLInputElement>(null)
 
-  const filteredUsers = users.filter((u) =>
+  const filteredExtensionUsers = extensionUsers.filter((u) =>
     !search ||
-    u.email?.toLowerCase().includes(search.toLowerCase()) ||
-    u.name?.toLowerCase().includes(search.toLowerCase())
+    u.memberKey.toLowerCase().includes(search.toLowerCase()) ||
+    u.memberName?.toLowerCase().includes(search.toLowerCase())
   )
-
-  const toggleUser = async (userId: string, currentActive: boolean) => {
-    const res = await fetch('/api/admin/users', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId, isActive: !currentActive }),
-    })
-    if (res.ok) {
-      setUsers((prev) =>
-        prev.map((u) => (u.id === userId ? { ...u, isActive: !currentActive } : u))
-      )
-    }
-  }
 
   const createInviteCode = async () => {
     setCreatingCode(true)
@@ -117,41 +102,6 @@ export default function AdminDashboardClient({
     if (res.ok) {
       setInviteCodes((prev) => prev.filter((c) => c.id !== codeId))
     }
-  }
-
-  const handleCsvUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    setCsvError('')
-
-    const text = await file.text()
-    const emails = text
-      .split('\n')
-      .map((l) => l.trim().toLowerCase())
-      .filter((l) => l.includes('@'))
-
-    if (!emails.length) {
-      setCsvError('No valid emails found in CSV.')
-      return
-    }
-
-    const res = await fetch('/api/admin/users', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'bulk-deactivate', emails }),
-    })
-
-    if (res.ok) {
-      const { deactivated } = await res.json()
-      setUsers((prev) =>
-        prev.map((u) => (emails.includes(u.email?.toLowerCase() ?? '') ? { ...u, isActive: false } : u))
-      )
-      alert(`Deactivated ${deactivated} user(s).`)
-    } else {
-      setCsvError('Failed to process CSV.')
-    }
-
-    if (fileRef.current) fileRef.current.value = ''
   }
 
   return (
@@ -316,37 +266,26 @@ export default function AdminDashboardClient({
           </div>
         )}
 
-        {/* Users */}
+        {/* Users — distinct extension members */}
         {tab === 'users' && (
           <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-black">User Management</h2>
-              <div className="flex items-center gap-3">
-                <label className="flex items-center gap-2 text-sm text-gray-400 cursor-pointer bg-white/5 border border-white/10 rounded-xl px-4 py-2 hover:border-amber-500/30 transition-all">
-                  <Users className="w-4 h-4" />
-                  Bulk Deactivate (CSV)
-                  <input
-                    ref={fileRef}
-                    type="file"
-                    accept=".csv,.txt"
-                    onChange={handleCsvUpload}
-                    className="hidden"
-                  />
-                </label>
+              <div>
+                <h2 className="text-2xl font-black">Extension Users</h2>
+                <p className="text-sm text-gray-500 mt-1">
+                  Distinct Whop members syncing trades from the Midas Edge Chrome extension.
+                </p>
+              </div>
+              <div className="text-sm text-gray-500">
+                {extensionUsers.length} member{extensionUsers.length === 1 ? '' : 's'}
               </div>
             </div>
-
-            {csvError && (
-              <div className="bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3 text-red-400 text-sm">
-                {csvError}
-              </div>
-            )}
 
             <div className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
               <input
                 type="text"
-                placeholder="Search by email or name..."
+                placeholder="Search by member name or key..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="w-full bg-white/5 border border-white/10 rounded-xl pl-11 pr-4 py-3 text-white placeholder:text-gray-600 focus:outline-none focus:border-amber-500/50 transition-all"
@@ -357,60 +296,46 @@ export default function AdminDashboardClient({
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-white/5 text-left">
-                    <th className="px-5 py-3 text-xs text-gray-500 font-medium">User</th>
-                    <th className="px-5 py-3 text-xs text-gray-500 font-medium">Role</th>
-                    <th className="px-5 py-3 text-xs text-gray-500 font-medium">Joined</th>
-                    <th className="px-5 py-3 text-xs text-gray-500 font-medium">Status</th>
-                    <th className="px-5 py-3 text-xs text-gray-500 font-medium">Actions</th>
+                    <th className="px-5 py-3 text-xs text-gray-500 font-medium">Member</th>
+                    <th className="px-5 py-3 text-xs text-gray-500 font-medium text-right">Trades</th>
+                    <th className="px-5 py-3 text-xs text-gray-500 font-medium">Last Trade</th>
+                    <th className="px-5 py-3 text-xs text-gray-500 font-medium text-right">Win Rate</th>
+                    <th className="px-5 py-3 text-xs text-gray-500 font-medium text-right">Total P&amp;L</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredUsers.map((user) => (
-                    <tr key={user.id} className="border-b border-white/5 last:border-0 hover:bg-white/2 transition-colors">
+                  {filteredExtensionUsers.map((u) => (
+                    <tr key={u.memberKey} className="border-b border-white/5 last:border-0 hover:bg-white/2 transition-colors">
                       <td className="px-5 py-4">
-                        <div className="font-medium text-sm text-white">{user.name || '—'}</div>
-                        <div className="text-xs text-gray-500">{user.email}</div>
+                        <div className="font-medium text-sm text-white">{u.memberName || '—'}</div>
+                        <code className="text-xs text-gray-500 font-mono">{maskKey(u.memberKey)}</code>
                       </td>
-                      <td className="px-5 py-4">
-                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                          user.role === 'admin'
-                            ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
-                            : 'bg-white/5 text-gray-400'
-                        }`}>
-                          {user.role}
-                        </span>
-                      </td>
+                      <td className="px-5 py-4 text-right text-sm text-white font-mono">{u.tradeCount}</td>
                       <td className="px-5 py-4 text-sm text-gray-400">
-                        {format(new Date(user.createdAt), 'MMM d, yyyy')}
+                        {format(new Date(u.lastTradeDate), 'MMM d, yyyy')}
                       </td>
-                      <td className="px-5 py-4">
-                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                          user.isActive
-                            ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                            : 'bg-red-500/20 text-red-400 border border-red-500/30'
+                      <td className="px-5 py-4 text-right">
+                        <span className={`text-sm font-mono ${
+                          u.winRate >= 50 ? 'text-emerald-400' : 'text-red-400'
                         }`}>
-                          {user.isActive ? 'Active' : 'Inactive'}
+                          {u.winRate}%
                         </span>
                       </td>
-                      <td className="px-5 py-4">
-                        <button
-                          onClick={() => toggleUser(user.id, user.isActive)}
-                          className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-white transition-colors"
-                          title={user.isActive ? 'Deactivate' : 'Activate'}
-                        >
-                          {user.isActive ? (
-                            <><ToggleRight className="w-4 h-4 text-emerald-400" /> Deactivate</>
-                          ) : (
-                            <><ToggleLeft className="w-4 h-4 text-gray-500" /> Activate</>
-                          )}
-                        </button>
+                      <td className={`px-5 py-4 text-right text-sm font-mono ${
+                        u.totalPnl >= 0 ? 'text-emerald-400' : 'text-red-400'
+                      }`}>
+                        {u.totalPnl >= 0 ? '+' : '-'}${Math.abs(u.totalPnl).toLocaleString()}
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
-              {filteredUsers.length === 0 && (
-                <div className="text-center py-12 text-gray-500 text-sm">No users found.</div>
+              {filteredExtensionUsers.length === 0 && (
+                <div className="text-center py-12 text-gray-500 text-sm">
+                  {extensionUsers.length === 0
+                    ? 'No extension users yet. Members appear here once they sync their first trade.'
+                    : 'No members match your search.'}
+                </div>
               )}
             </div>
           </div>

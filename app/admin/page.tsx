@@ -17,19 +17,8 @@ export default async function AdminPage() {
   const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate())
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
 
-  const [users, inviteCodes, stats, liveStats, extensionTrades, uniqueMembers, tradesToday, tradesThisMonth] =
+  const [inviteCodes, stats, liveStats, extensionTrades, allMemberTrades, tradesToday, tradesThisMonth] =
     await Promise.all([
-      prisma.user.findMany({
-        orderBy: { createdAt: 'desc' },
-        select: {
-          id: true,
-          email: true,
-          name: true,
-          role: true,
-          isActive: true,
-          createdAt: true,
-        },
-      }),
       prisma.inviteCode.findMany({
         orderBy: { createdAt: 'desc' },
       }),
@@ -46,16 +35,74 @@ export default async function AdminPage() {
         orderBy: { date: 'desc' },
         take: 50,
       }),
-      prisma.extensionTrade
-        .findMany({ distinct: ['memberKey'], select: { memberKey: true } })
-        .then((m) => m.length),
+      prisma.extensionTrade.findMany({
+        select: {
+          memberKey: true,
+          memberName: true,
+          date: true,
+          outcome: true,
+          dollarAmount: true,
+        },
+      }),
       prisma.extensionTrade.count({ where: { date: { gte: startOfDay } } }),
       prisma.extensionTrade.count({ where: { date: { gte: startOfMonth } } }),
     ])
 
+  type MemberAgg = {
+    memberKey: string
+    memberName: string | null
+    memberNameDate: Date | null
+    tradeCount: number
+    wins: number
+    losses: number
+    totalPnl: number
+    lastTradeDate: Date
+  }
+  const byMember = new Map<string, MemberAgg>()
+  for (const t of allMemberTrades) {
+    let m = byMember.get(t.memberKey)
+    if (!m) {
+      m = {
+        memberKey: t.memberKey,
+        memberName: null,
+        memberNameDate: null,
+        tradeCount: 0,
+        wins: 0,
+        losses: 0,
+        totalPnl: 0,
+        lastTradeDate: t.date,
+      }
+      byMember.set(t.memberKey, m)
+    }
+    m.tradeCount += 1
+    if (t.outcome === 'WIN') {
+      m.wins += 1
+      m.totalPnl += t.dollarAmount
+    } else {
+      m.losses += 1
+      m.totalPnl -= t.dollarAmount
+    }
+    if (t.memberName && (!m.memberNameDate || t.date > m.memberNameDate)) {
+      m.memberName = t.memberName
+      m.memberNameDate = t.date
+    }
+    if (t.date > m.lastTradeDate) m.lastTradeDate = t.date
+  }
+  const extensionUsers = Array.from(byMember.values())
+    .map((m) => ({
+      memberKey: m.memberKey,
+      memberName: m.memberName,
+      tradeCount: m.tradeCount,
+      lastTradeDate: m.lastTradeDate.toISOString(),
+      totalPnl: m.totalPnl,
+      winRate: m.tradeCount ? Math.round((m.wins / m.tradeCount) * 100) : 0,
+    }))
+    .sort((a, b) => (a.lastTradeDate < b.lastTradeDate ? 1 : -1))
+  const uniqueMembers = extensionUsers.length
+
   return (
     <AdminDashboardClient
-      initialUsers={users}
+      initialExtensionUsers={extensionUsers}
       initialInviteCodes={inviteCodes}
       stats={stats}
       liveStats={{
