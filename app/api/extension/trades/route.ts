@@ -82,10 +82,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'No valid trades in payload' }, { status: 400, headers: CORS_HEADERS })
   }
 
-  const result = await prisma.extensionTrade.createMany({ data: rows })
+  // Snapshot-replace: extension re-sends the member's full trade set on every sync,
+  // so wipe their existing rows and reinsert. Wrapped in a tx so we never end up
+  // with a partial state if the createMany fails.
+  const [, created] = await prisma.$transaction([
+    prisma.extensionTrade.deleteMany({ where: { memberKey } }),
+    prisma.extensionTrade.createMany({ data: rows }),
+  ])
 
   return NextResponse.json(
-    { ok: true, inserted: result.count, skipped: trades.length - rows.length },
+    { ok: true, inserted: created.count, skipped: trades.length - rows.length },
     { headers: CORS_HEADERS }
   )
 }
