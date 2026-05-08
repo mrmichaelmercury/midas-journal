@@ -40,17 +40,10 @@ type ExtensionTrade = {
   accountName: string | null
   source: string
   broker: string | null
+  tradeType: string
 }
 
 type Period = 'today' | 'week' | 'month' | 'year' | 'all'
-
-const DEMO_KEYWORDS = ['demo', 'sim', 'paper', 'practice']
-
-function isDemoTrade(t: ExtensionTrade): boolean {
-  if (!t.accountName) return false
-  const name = t.accountName.toLowerCase()
-  return DEMO_KEYWORDS.some((kw) => name.includes(kw))
-}
 
 const PERIOD_OPTIONS: { key: Period; label: string }[] = [
   { key: 'today', label: 'Today' },
@@ -117,7 +110,7 @@ export default function AdminDashboardClient({
     const start = periodStart(period, now)
     const inPeriod = trades.filter((t) => {
       if (new Date(t.date) < start) return false
-      if (liveOnly && isDemoTrade(t)) return false
+      if (liveOnly && t.tradeType !== 'live') return false
       return true
     })
 
@@ -273,7 +266,7 @@ export default function AdminDashboardClient({
                     className={`px-3 py-1.5 rounded-md transition-all ${
                       liveOnly ? 'bg-amber-500 text-black' : 'text-gray-400 hover:text-white'
                     }`}
-                    title="Hide trades whose accountName looks like demo/sim/paper/practice"
+                    title="Show only trades the extension reported as tradeType=live"
                   >
                     Live Only
                   </button>

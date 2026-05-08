@@ -41,6 +41,7 @@ export default async function AdminPage() {
         accountName: true,
         source: true,
         broker: true,
+        tradeType: true,
       },
     }),
   ])
@@ -112,6 +113,7 @@ export default async function AdminPage() {
         accountName: t.accountName,
         source: t.source,
         broker: t.broker,
+        tradeType: t.tradeType,
       }))}
     />
   )

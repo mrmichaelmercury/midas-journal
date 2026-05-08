@@ -22,7 +22,10 @@ type IncomingTrade = {
   notes?: string | null
   source?: string | null
   broker?: string | null
+  tradeType?: string | null
 }
+
+const VALID_TRADE_TYPES = new Set(['live', 'demo', 'backtest'])
 
 export function OPTIONS() {
   return corsPreflight()
@@ -56,6 +59,8 @@ export async function POST(req: NextRequest) {
       if (!t.instrument) return null
       if (outcome !== 'WIN' && outcome !== 'LOSS') return null
       if (!Number.isFinite(dollarAmount)) return null
+      const rawTradeType = typeof t.tradeType === 'string' ? t.tradeType.toLowerCase() : null
+      const tradeType = rawTradeType && VALID_TRADE_TYPES.has(rawTradeType) ? rawTradeType : 'live'
       return {
         memberKey,
         memberName,
@@ -74,6 +79,7 @@ export async function POST(req: NextRequest) {
         notes: t.notes ?? null,
         source: t.source ?? 'manual',
         broker: t.broker ?? null,
+        tradeType,
       }
     })
     .filter((r): r is NonNullable<typeof r> => r !== null)

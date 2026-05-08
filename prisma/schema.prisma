@@ -197,9 +197,11 @@ model ExtensionTrade {
   notes        String?
   source       String   @default("manual")
   broker       String?
+  tradeType    String   @default("live")
   createdAt    DateTime @default(now())
 
   @@index([memberKey])
   @@index([date])
   @@index([createdAt])
+  @@index([tradeType])
 }
