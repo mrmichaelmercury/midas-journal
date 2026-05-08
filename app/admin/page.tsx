@@ -37,6 +37,7 @@ export default async function AdminPage() {
         instrument: true,
         outcome: true,
         dollarAmount: true,
+        accountName: true,
         source: true,
         broker: true,
       },
@@ -107,6 +108,7 @@ export default async function AdminPage() {
         instrument: t.instrument,
         outcome: t.outcome,
         dollarAmount: t.dollarAmount,
+        accountName: t.accountName,
         source: t.source,
         broker: t.broker,
       }))}

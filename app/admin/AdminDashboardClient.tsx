@@ -37,11 +37,20 @@ type ExtensionTrade = {
   instrument: string
   outcome: string
   dollarAmount: number
+  accountName: string | null
   source: string
   broker: string | null
 }
 
 type Period = 'today' | 'week' | 'month' | 'year' | 'all'
+
+const DEMO_KEYWORDS = ['demo', 'sim', 'paper', 'practice']
+
+function isDemoTrade(t: ExtensionTrade): boolean {
+  if (!t.accountName) return false
+  const name = t.accountName.toLowerCase()
+  return DEMO_KEYWORDS.some((kw) => name.includes(kw))
+}
 
 const PERIOD_OPTIONS: { key: Period; label: string }[] = [
   { key: 'today', label: 'Today' },
@@ -89,6 +98,7 @@ export default function AdminDashboardClient({
   const [tab, setTab] = useState<'users' | 'invites' | 'stats' | 'trades'>('trades')
   const [trades] = useState(initialTrades)
   const [period, setPeriod] = useState<Period>('week')
+  const [liveOnly, setLiveOnly] = useState(true)
   const maskKey = (k: string) => (k.length <= 8 ? k : `${k.slice(0, 4)}…${k.slice(-4)}`)
   const [extensionUsers] = useState(initialExtensionUsers)
   const [inviteCodes, setInviteCodes] = useState(initialInviteCodes)
@@ -105,23 +115,35 @@ export default function AdminDashboardClient({
   const periodView = useMemo(() => {
     const now = new Date()
     const start = periodStart(period, now)
-    const inPeriod = trades.filter((t) => new Date(t.date) >= start)
+    const inPeriod = trades.filter((t) => {
+      if (new Date(t.date) < start) return false
+      if (liveOnly && isDemoTrade(t)) return false
+      return true
+    })
 
     let wins = 0
     let losses = 0
     let totalPnl = 0
+    let totalWinDollars = 0
+    let totalLossDollars = 0
     const memberSet = new Set<string>()
     const dailyPnl = new Map<string, number>()
 
     for (const t of inPeriod) {
       memberSet.add(t.memberKey)
       const day = t.date.slice(0, 10) // ISO date prefix
+      const amount = Math.abs(t.dollarAmount)
       const sign = t.outcome === 'WIN' ? 1 : -1
-      const pnl = sign * Math.abs(t.dollarAmount)
+      const pnl = sign * amount
       totalPnl += pnl
       dailyPnl.set(day, (dailyPnl.get(day) ?? 0) + pnl)
-      if (t.outcome === 'WIN') wins++
-      else losses++
+      if (t.outcome === 'WIN') {
+        wins++
+        totalWinDollars += amount
+      } else {
+        losses++
+        totalLossDollars += amount
+      }
     }
 
     // Streak from most-recent-first run of WINs in the filtered set.
@@ -134,6 +156,13 @@ export default function AdminDashboardClient({
 
     const totalTrades = wins + losses
     const winRate = totalTrades > 0 ? Math.round((wins / totalTrades) * 100) : 0
+    const profitFactor =
+      totalLossDollars > 0
+        ? totalWinDollars / totalLossDollars
+        : totalWinDollars > 0
+          ? Infinity
+          : null
+    const avgPnl = totalTrades > 0 ? totalPnl / totalTrades : null
 
     const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate())
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
@@ -157,10 +186,12 @@ export default function AdminDashboardClient({
         tradesToday,
         tradesThisMonth,
         totalPnl,
+        profitFactor,
+        avgPnl,
       },
       chartDays,
     }
-  }, [trades, period])
+  }, [trades, period, liveOnly])
 
   const createInviteCode = async () => {
     setCreatingCode(true)
@@ -234,42 +265,89 @@ export default function AdminDashboardClient({
           <div className="space-y-6">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <h2 className="text-2xl font-black">Live Trades from Chrome Extension</h2>
-              <div className="flex items-center gap-2">
-                <label htmlFor="period" className="text-xs text-gray-500">Period</label>
-                <select
-                  id="period"
-                  value={period}
-                  onChange={(e) => setPeriod(e.target.value as Period)}
-                  className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-amber-500/50"
-                >
-                  {PERIOD_OPTIONS.map((opt) => (
-                    <option key={opt.key} value={opt.key}>{opt.label}</option>
-                  ))}
-                </select>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center bg-white/5 border border-white/10 rounded-lg p-0.5 text-xs font-medium">
+                  <button
+                    type="button"
+                    onClick={() => setLiveOnly(true)}
+                    className={`px-3 py-1.5 rounded-md transition-all ${
+                      liveOnly ? 'bg-amber-500 text-black' : 'text-gray-400 hover:text-white'
+                    }`}
+                    title="Hide trades whose accountName looks like demo/sim/paper/practice"
+                  >
+                    Live Only
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setLiveOnly(false)}
+                    className={`px-3 py-1.5 rounded-md transition-all ${
+                      !liveOnly ? 'bg-amber-500 text-black' : 'text-gray-400 hover:text-white'
+                    }`}
+                  >
+                    All Trades
+                  </button>
+                </div>
+                <div className="flex items-center gap-2">
+                  <label htmlFor="period" className="text-xs text-gray-500">Period</label>
+                  <select
+                    id="period"
+                    value={period}
+                    onChange={(e) => setPeriod(e.target.value as Period)}
+                    className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-amber-500/50"
+                  >
+                    {PERIOD_OPTIONS.map((opt) => (
+                      <option key={opt.key} value={opt.key}>{opt.label}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {[
-                { label: 'Total Trades', value: periodView.stats.totalTrades, color: 'text-white' },
-                { label: 'Win Rate', value: `${periodView.stats.winRate}%`, color: 'text-emerald-400' },
-                {
-                  label: 'Record (W/L)',
-                  value: `${periodView.stats.wins} / ${periodView.stats.losses}`,
-                  color: 'text-white',
-                },
-                { label: 'Current Streak', value: periodView.stats.streak, color: 'text-amber-400' },
-                { label: 'Active Members', value: periodView.stats.uniqueMembers, color: 'text-white' },
-                { label: 'Trades Today', value: periodView.stats.tradesToday, color: 'text-emerald-400' },
-                { label: 'Trades This Month', value: periodView.stats.tradesThisMonth, color: 'text-amber-400' },
-                {
-                  label: 'Net P&L',
-                  value: `${periodView.stats.totalPnl >= 0 ? '+' : '-'}$${Math.abs(
-                    periodView.stats.totalPnl
-                  ).toLocaleString()}`,
-                  color: periodView.stats.totalPnl >= 0 ? 'text-emerald-400' : 'text-red-400',
-                },
-              ].map((s) => (
+              {(() => {
+                const { profitFactor, avgPnl, totalPnl } = periodView.stats
+                const profitFactorDisplay =
+                  profitFactor === null
+                    ? '—'
+                    : profitFactor === Infinity
+                      ? '∞'
+                      : `${profitFactor.toFixed(2)}x`
+                const profitFactorColor =
+                  profitFactor === null
+                    ? 'text-gray-500'
+                    : profitFactor === Infinity || profitFactor >= 1
+                      ? 'text-emerald-400'
+                      : 'text-red-400'
+                const avgPnlDisplay =
+                  avgPnl === null
+                    ? '—'
+                    : `${avgPnl >= 0 ? '+' : '-'}$${Math.abs(avgPnl).toLocaleString(undefined, {
+                        maximumFractionDigits: 2,
+                      })}`
+                const avgPnlColor =
+                  avgPnl === null ? 'text-gray-500' : avgPnl >= 0 ? 'text-emerald-400' : 'text-red-400'
+
+                return [
+                  { label: 'Total Trades', value: periodView.stats.totalTrades, color: 'text-white' },
+                  { label: 'Win Rate', value: `${periodView.stats.winRate}%`, color: 'text-emerald-400' },
+                  {
+                    label: 'Record (W/L)',
+                    value: `${periodView.stats.wins} / ${periodView.stats.losses}`,
+                    color: 'text-white',
+                  },
+                  { label: 'Current Streak', value: periodView.stats.streak, color: 'text-amber-400' },
+                  { label: 'Active Members', value: periodView.stats.uniqueMembers, color: 'text-white' },
+                  { label: 'Trades Today', value: periodView.stats.tradesToday, color: 'text-emerald-400' },
+                  { label: 'Trades This Month', value: periodView.stats.tradesThisMonth, color: 'text-amber-400' },
+                  {
+                    label: 'Net P&L',
+                    value: `${totalPnl >= 0 ? '+' : '-'}$${Math.abs(totalPnl).toLocaleString()}`,
+                    color: totalPnl >= 0 ? 'text-emerald-400' : 'text-red-400',
+                  },
+                  { label: 'Profit Factor', value: profitFactorDisplay, color: profitFactorColor },
+                  { label: 'Avg P&L/Trade', value: avgPnlDisplay, color: avgPnlColor },
+                ]
+              })().map((s) => (
                 <div key={s.label} className="bg-[#111111] border border-white/5 rounded-2xl p-5">
                   <div className="text-gray-500 text-xs mb-2">{s.label}</div>
                   <div className={`text-2xl font-black ${s.color}`}>{s.value}</div>
