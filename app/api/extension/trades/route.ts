@@ -82,16 +82,29 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'No valid trades in payload' }, { status: 400, headers: CORS_HEADERS })
   }
 
-  // Snapshot-replace: extension re-sends the member's full trade set on every sync,
-  // so wipe their existing rows and reinsert. Wrapped in a tx so we never end up
-  // with a partial state if the createMany fails.
-  const [, created] = await prisma.$transaction([
-    prisma.extensionTrade.deleteMany({ where: { memberKey } }),
-    prisma.extensionTrade.createMany({ data: rows }),
-  ])
+  // Append-only: extension sends one trade per manual entry, so we insert and
+  // dedupe by (memberKey, date, instrument, dollarAmount, outcome) to keep
+  // re-syncs idempotent without wiping prior history.
+  const existing = await prisma.extensionTrade.findMany({
+    where: { memberKey, date: { in: rows.map((r) => r.date) } },
+    select: { date: true, instrument: true, outcome: true, dollarAmount: true },
+  })
+  const dedupeKey = (r: { date: Date; instrument: string; outcome: string; dollarAmount: number }) =>
+    `${r.date.getTime()}|${r.instrument}|${r.outcome}|${r.dollarAmount}`
+  const seen = new Set(existing.map(dedupeKey))
+  const toInsert = rows.filter((r) => !seen.has(dedupeKey(r)))
+
+  const created = toInsert.length
+    ? await prisma.extensionTrade.createMany({ data: toInsert })
+    : { count: 0 }
 
   return NextResponse.json(
-    { ok: true, inserted: created.count, skipped: trades.length - rows.length },
+    {
+      ok: true,
+      inserted: created.count,
+      duplicates: rows.length - toInsert.length,
+      skipped: trades.length - rows.length,
+    },
     { headers: CORS_HEADERS }
   )
 }
