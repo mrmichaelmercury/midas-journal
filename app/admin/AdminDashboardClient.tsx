@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Users, Key, BarChart3, Search, Plus, Trash2, TrendingUp, LogOut, Activity } from 'lucide-react'
 import { signOut } from 'next-auth/react'
 import { format } from 'date-fns'
@@ -29,17 +29,6 @@ type Stats = {
   newThisMonth: number
 }
 
-type LiveStats = {
-  winRate: number
-  streak: number
-  record: { wins: number; losses: number }
-  totalTrades: number
-  totalPnl: number
-  uniqueMembers: number
-  tradesToday: number
-  tradesThisMonth: number
-}
-
 type ExtensionTrade = {
   id: string
   memberKey: string
@@ -50,14 +39,44 @@ type ExtensionTrade = {
   dollarAmount: number
   source: string
   broker: string | null
-  createdAt: string
+}
+
+type Period = 'today' | 'week' | 'month' | 'year' | 'all'
+
+const PERIOD_OPTIONS: { key: Period; label: string }[] = [
+  { key: 'today', label: 'Today' },
+  { key: 'week', label: 'This Week' },
+  { key: 'month', label: 'This Month' },
+  { key: 'year', label: 'This Year' },
+  { key: 'all', label: 'All Time' },
+]
+
+function periodStart(period: Period, now = new Date()): Date {
+  const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  switch (period) {
+    case 'today':
+      return startOfDay
+    case 'week': {
+      // Week starts Monday (trading-week friendly).
+      const dow = startOfDay.getDay()
+      const offset = dow === 0 ? 6 : dow - 1
+      const d = new Date(startOfDay)
+      d.setDate(d.getDate() - offset)
+      return d
+    }
+    case 'month':
+      return new Date(now.getFullYear(), now.getMonth(), 1)
+    case 'year':
+      return new Date(now.getFullYear(), 0, 1)
+    case 'all':
+      return new Date(0)
+  }
 }
 
 type Props = {
   initialExtensionUsers: ExtensionUser[]
   initialInviteCodes: InviteCode[]
   stats: Stats
-  liveStats: LiveStats
   initialTrades: ExtensionTrade[]
 }
 
@@ -65,11 +84,11 @@ export default function AdminDashboardClient({
   initialExtensionUsers,
   initialInviteCodes,
   stats,
-  liveStats,
   initialTrades,
 }: Props) {
   const [tab, setTab] = useState<'users' | 'invites' | 'stats' | 'trades'>('trades')
   const [trades] = useState(initialTrades)
+  const [period, setPeriod] = useState<Period>('week')
   const maskKey = (k: string) => (k.length <= 8 ? k : `${k.slice(0, 4)}…${k.slice(-4)}`)
   const [extensionUsers] = useState(initialExtensionUsers)
   const [inviteCodes, setInviteCodes] = useState(initialInviteCodes)
@@ -82,6 +101,66 @@ export default function AdminDashboardClient({
     u.memberKey.toLowerCase().includes(search.toLowerCase()) ||
     u.memberName?.toLowerCase().includes(search.toLowerCase())
   )
+
+  const periodView = useMemo(() => {
+    const now = new Date()
+    const start = periodStart(period, now)
+    const inPeriod = trades.filter((t) => new Date(t.date) >= start)
+
+    let wins = 0
+    let losses = 0
+    let totalPnl = 0
+    const memberSet = new Set<string>()
+    const dailyPnl = new Map<string, number>()
+
+    for (const t of inPeriod) {
+      memberSet.add(t.memberKey)
+      const day = t.date.slice(0, 10) // ISO date prefix
+      const sign = t.outcome === 'WIN' ? 1 : -1
+      const pnl = sign * Math.abs(t.dollarAmount)
+      totalPnl += pnl
+      dailyPnl.set(day, (dailyPnl.get(day) ?? 0) + pnl)
+      if (t.outcome === 'WIN') wins++
+      else losses++
+    }
+
+    // Streak from most-recent-first run of WINs in the filtered set.
+    const recentSorted = [...inPeriod].sort((a, b) => (a.date < b.date ? 1 : -1))
+    let streak = 0
+    for (const t of recentSorted) {
+      if (t.outcome === 'WIN') streak++
+      else break
+    }
+
+    const totalTrades = wins + losses
+    const winRate = totalTrades > 0 ? Math.round((wins / totalTrades) * 100) : 0
+
+    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+    const tradesToday = inPeriod.filter((t) => new Date(t.date) >= startOfDay).length
+    const tradesThisMonth = inPeriod.filter((t) => new Date(t.date) >= startOfMonth).length
+
+    const chartDays = Array.from(dailyPnl.entries())
+      .map(([day, pnl]) => ({ day, pnl }))
+      .sort((a, b) => (a.day < b.day ? -1 : 1))
+
+    return {
+      start,
+      inPeriod: recentSorted,
+      stats: {
+        totalTrades,
+        winRate,
+        wins,
+        losses,
+        streak,
+        uniqueMembers: memberSet.size,
+        tradesToday,
+        tradesThisMonth,
+        totalPnl,
+      },
+      chartDays,
+    }
+  }, [trades, period])
 
   const createInviteCode = async () => {
     setCreatingCode(true)
@@ -153,29 +232,42 @@ export default function AdminDashboardClient({
         {/* Live Trades */}
         {tab === 'trades' && (
           <div className="space-y-6">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-4">
               <h2 className="text-2xl font-black">Live Trades from Chrome Extension</h2>
+              <div className="flex items-center gap-2">
+                <label htmlFor="period" className="text-xs text-gray-500">Period</label>
+                <select
+                  id="period"
+                  value={period}
+                  onChange={(e) => setPeriod(e.target.value as Period)}
+                  className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-amber-500/50"
+                >
+                  {PERIOD_OPTIONS.map((opt) => (
+                    <option key={opt.key} value={opt.key}>{opt.label}</option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {[
-                { label: 'Total Trades', value: liveStats.totalTrades, color: 'text-white' },
-                { label: 'Win Rate', value: `${liveStats.winRate}%`, color: 'text-emerald-400' },
+                { label: 'Total Trades', value: periodView.stats.totalTrades, color: 'text-white' },
+                { label: 'Win Rate', value: `${periodView.stats.winRate}%`, color: 'text-emerald-400' },
                 {
                   label: 'Record (W/L)',
-                  value: `${liveStats.record.wins} / ${liveStats.record.losses}`,
+                  value: `${periodView.stats.wins} / ${periodView.stats.losses}`,
                   color: 'text-white',
                 },
-                { label: 'Current Streak', value: liveStats.streak, color: 'text-amber-400' },
-                { label: 'Active Members', value: liveStats.uniqueMembers, color: 'text-white' },
-                { label: 'Trades Today', value: liveStats.tradesToday, color: 'text-emerald-400' },
-                { label: 'Trades This Month', value: liveStats.tradesThisMonth, color: 'text-amber-400' },
+                { label: 'Current Streak', value: periodView.stats.streak, color: 'text-amber-400' },
+                { label: 'Active Members', value: periodView.stats.uniqueMembers, color: 'text-white' },
+                { label: 'Trades Today', value: periodView.stats.tradesToday, color: 'text-emerald-400' },
+                { label: 'Trades This Month', value: periodView.stats.tradesThisMonth, color: 'text-amber-400' },
                 {
                   label: 'Net P&L',
-                  value: `${liveStats.totalPnl >= 0 ? '+' : '-'}$${Math.abs(
-                    liveStats.totalPnl
+                  value: `${periodView.stats.totalPnl >= 0 ? '+' : '-'}$${Math.abs(
+                    periodView.stats.totalPnl
                   ).toLocaleString()}`,
-                  color: liveStats.totalPnl >= 0 ? 'text-emerald-400' : 'text-red-400',
+                  color: periodView.stats.totalPnl >= 0 ? 'text-emerald-400' : 'text-red-400',
                 },
               ].map((s) => (
                 <div key={s.label} className="bg-[#111111] border border-white/5 rounded-2xl p-5">
@@ -185,10 +277,14 @@ export default function AdminDashboardClient({
               ))}
             </div>
 
+            <DailyPnlChart days={periodView.chartDays} />
+
             <div className="bg-[#111111] border border-white/5 rounded-2xl overflow-hidden">
               <div className="px-5 py-4 border-b border-white/5 flex items-center justify-between">
                 <h3 className="font-bold text-white">Recent Trades</h3>
-                <span className="text-xs text-gray-500">Showing latest {trades.length}</span>
+                <span className="text-xs text-gray-500">
+                  {periodView.inPeriod.length} trade{periodView.inPeriod.length === 1 ? '' : 's'} in period
+                </span>
               </div>
               <table className="w-full">
                 <thead>
@@ -202,7 +298,7 @@ export default function AdminDashboardClient({
                   </tr>
                 </thead>
                 <tbody>
-                  {trades.map((t) => (
+                  {periodView.inPeriod.slice(0, 100).map((t) => (
                     <tr
                       key={t.id}
                       className="border-b border-white/5 last:border-0 hover:bg-white/2 transition-colors"
@@ -238,9 +334,9 @@ export default function AdminDashboardClient({
                   ))}
                 </tbody>
               </table>
-              {trades.length === 0 && (
+              {periodView.inPeriod.length === 0 && (
                 <div className="text-center py-12 text-gray-500 text-sm">
-                  No trades yet. Once members log trades in the Chrome extension they'll appear here.
+                  No trades in this period.
                 </div>
               )}
             </div>
@@ -442,6 +538,51 @@ export default function AdminDashboardClient({
           </div>
         )}
       </div>
+    </div>
+  )
+}
+
+function DailyPnlChart({ days }: { days: { day: string; pnl: number }[] }) {
+  const visible = days.slice(-60)
+  const maxAbs = Math.max(1, ...visible.map((d) => Math.abs(d.pnl)))
+
+  return (
+    <div className="bg-[#111111] border border-white/5 rounded-2xl p-5">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="font-bold text-white">Daily P&amp;L</h3>
+        <span className="text-xs text-gray-500">
+          {visible.length} day{visible.length === 1 ? '' : 's'}
+          {days.length > visible.length ? ` (latest ${visible.length} of ${days.length})` : ''}
+        </span>
+      </div>
+      {visible.length === 0 ? (
+        <div className="h-32 flex items-center justify-center text-sm text-gray-500">
+          No trades to chart in this period.
+        </div>
+      ) : (
+        <div className="flex items-end gap-1 h-40">
+          {visible.map((d) => {
+            const heightPct = (Math.abs(d.pnl) / maxAbs) * 100
+            const positive = d.pnl >= 0
+            return (
+              <div
+                key={d.day}
+                className="flex-1 flex items-end h-full group relative"
+                title={`${format(new Date(d.day), 'MMM d, yyyy')} • ${
+                  positive ? '+' : '-'
+                }$${Math.abs(d.pnl).toLocaleString()}`}
+              >
+                <div
+                  className={`w-full rounded-t ${
+                    positive ? 'bg-emerald-500/70' : 'bg-red-500/70'
+                  } transition-opacity group-hover:opacity-100 opacity-80`}
+                  style={{ height: `${Math.max(heightPct, 2)}%` }}
+                />
+              </div>
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 }

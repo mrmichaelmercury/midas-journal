@@ -2,7 +2,6 @@ import { redirect } from 'next/navigation'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/db'
-import { getLiveStats } from '@/lib/extension-stats'
 import AdminDashboardClient from './AdminDashboardClient'
 
 export const dynamic = 'force-dynamic'
@@ -14,39 +13,35 @@ export default async function AdminPage() {
   if ((session.user as any).role !== 'admin') redirect('/dashboard')
 
   const now = new Date()
-  const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate())
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
 
-  const [inviteCodes, stats, liveStats, extensionTrades, allMemberTrades, tradesToday, tradesThisMonth] =
-    await Promise.all([
-      prisma.inviteCode.findMany({
-        orderBy: { createdAt: 'desc' },
-      }),
-      (async () => {
-        const [total, active, newThisMonth] = await Promise.all([
-          prisma.user.count(),
-          prisma.user.count({ where: { isActive: true } }),
-          prisma.user.count({ where: { createdAt: { gte: startOfMonth } } }),
-        ])
-        return { total, active, newThisMonth }
-      })(),
-      getLiveStats(),
-      prisma.extensionTrade.findMany({
-        orderBy: { date: 'desc' },
-        take: 50,
-      }),
-      prisma.extensionTrade.findMany({
-        select: {
-          memberKey: true,
-          memberName: true,
-          date: true,
-          outcome: true,
-          dollarAmount: true,
-        },
-      }),
-      prisma.extensionTrade.count({ where: { date: { gte: startOfDay } } }),
-      prisma.extensionTrade.count({ where: { date: { gte: startOfMonth } } }),
-    ])
+  const [inviteCodes, stats, allTrades] = await Promise.all([
+    prisma.inviteCode.findMany({
+      orderBy: { createdAt: 'desc' },
+    }),
+    (async () => {
+      const [total, active, newThisMonth] = await Promise.all([
+        prisma.user.count(),
+        prisma.user.count({ where: { isActive: true } }),
+        prisma.user.count({ where: { createdAt: { gte: startOfMonth } } }),
+      ])
+      return { total, active, newThisMonth }
+    })(),
+    prisma.extensionTrade.findMany({
+      orderBy: { date: 'desc' },
+      select: {
+        id: true,
+        memberKey: true,
+        memberName: true,
+        date: true,
+        instrument: true,
+        outcome: true,
+        dollarAmount: true,
+        source: true,
+        broker: true,
+      },
+    }),
+  ])
 
   type MemberAgg = {
     memberKey: string
@@ -59,7 +54,7 @@ export default async function AdminPage() {
     lastTradeDate: Date
   }
   const byMember = new Map<string, MemberAgg>()
-  for (const t of allMemberTrades) {
+  for (const t of allTrades) {
     let m = byMember.get(t.memberKey)
     if (!m) {
       m = {
@@ -98,20 +93,13 @@ export default async function AdminPage() {
       winRate: m.tradeCount ? Math.round((m.wins / m.tradeCount) * 100) : 0,
     }))
     .sort((a, b) => (a.lastTradeDate < b.lastTradeDate ? 1 : -1))
-  const uniqueMembers = extensionUsers.length
 
   return (
     <AdminDashboardClient
       initialExtensionUsers={extensionUsers}
       initialInviteCodes={inviteCodes}
       stats={stats}
-      liveStats={{
-        ...liveStats,
-        uniqueMembers,
-        tradesToday,
-        tradesThisMonth,
-      }}
-      initialTrades={extensionTrades.map((t) => ({
+      initialTrades={allTrades.map((t) => ({
         id: t.id,
         memberKey: t.memberKey,
         memberName: t.memberName,
@@ -121,7 +109,6 @@ export default async function AdminPage() {
         dollarAmount: t.dollarAmount,
         source: t.source,
         broker: t.broker,
-        createdAt: t.createdAt.toISOString(),
       }))}
     />
   )
