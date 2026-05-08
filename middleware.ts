@@ -2,12 +2,11 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { getToken } from 'next-auth/jwt'
 
-export async function middleware(request: NextRequest) {
-  const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET })
+const ADMIN_COOKIE = 'admin_auth'
 
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Public paths that don't require auth
   const publicPaths = [
     '/',
     '/login',
@@ -16,32 +15,41 @@ export async function middleware(request: NextRequest) {
     '/api/extension',
     '/api/live-stats',
   ]
-  const isPublic = publicPaths.some((p) => pathname === p || pathname.startsWith(p))
+  if (publicPaths.some((p) => pathname === p || pathname.startsWith(p))) {
+    return NextResponse.next()
+  }
 
-  if (isPublic) return NextResponse.next()
+  // Admin password gate — independent of NextAuth.
+  if (pathname.startsWith('/admin') || pathname.startsWith('/api/admin')) {
+    // The login endpoint must be reachable without a cookie.
+    if (pathname === '/api/admin/auth') return NextResponse.next()
 
-  // Not authenticated
+    const expected = process.env.ADMIN_PASSWORD
+    const cookie = request.cookies.get(ADMIN_COOKIE)?.value
+    const authed = !!expected && cookie === expected
+
+    if (authed) return NextResponse.next()
+
+    if (pathname.startsWith('/api/admin')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    // /admin renders its own password form when unauthed — let it through.
+    return NextResponse.next()
+  }
+
+  // Everything else stays on NextAuth.
+  const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET })
+
   if (!token) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)
   }
 
-  // Account deactivated
   if (token.isActive === false) {
-    // Sign them out by redirecting to a deactivated page
     const url = request.nextUrl.clone()
     url.pathname = '/deactivated'
     return NextResponse.redirect(url)
-  }
-
-  // Admin-only routes
-  if (pathname.startsWith('/admin') || pathname.startsWith('/api/admin')) {
-    if (token.role !== 'admin') {
-      const url = request.nextUrl.clone()
-      url.pathname = '/market-overview'
-      return NextResponse.redirect(url)
-    }
   }
 
   return NextResponse.next()

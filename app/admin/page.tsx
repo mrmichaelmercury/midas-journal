@@ -1,16 +1,17 @@
-import { redirect } from 'next/navigation'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { cookies } from 'next/headers'
 import { prisma } from '@/lib/db'
 import AdminDashboardClient from './AdminDashboardClient'
+import AdminLogin from './AdminLogin'
 
 export const dynamic = 'force-dynamic'
 
 export default async function AdminPage() {
-  const session = await getServerSession(authOptions)
-
-  if (!session) redirect('/login')
-  if ((session.user as any).role !== 'admin') redirect('/dashboard')
+  const cookieStore = await cookies()
+  const adminCookie = cookieStore.get('admin_auth')?.value
+  const expected = process.env.ADMIN_PASSWORD
+  if (!expected || adminCookie !== expected) {
+    return <AdminLogin />
+  }
 
   const now = new Date()
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
