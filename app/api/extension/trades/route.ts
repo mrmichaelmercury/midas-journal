@@ -88,15 +88,42 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'No valid trades in payload' }, { status: 400, headers: CORS_HEADERS })
   }
 
-  // Append-only: extension sends one trade per manual entry, so we insert and
-  // dedupe by (memberKey, date, instrument, dollarAmount, outcome) to keep
-  // re-syncs idempotent without wiping prior history.
+  // Full-sync: extension re-uploads the member's complete trade set after an
+  // edit/delete, so wipe their existing rows and reinsert. Anything else
+  // ("manual", "import", …) appends with a (date, instrument, outcome,
+  // dollarAmount, tradeType) dedupe so repeat syncs stay idempotent.
+  const isFullSync = rows.some((r) => r.source === 'full-sync')
+
+  if (isFullSync) {
+    const [, created] = await prisma.$transaction([
+      prisma.extensionTrade.deleteMany({ where: { memberKey } }),
+      prisma.extensionTrade.createMany({ data: rows }),
+    ])
+    return NextResponse.json(
+      {
+        ok: true,
+        mode: 'full-sync',
+        inserted: created.count,
+        skipped: trades.length - rows.length,
+      },
+      { headers: CORS_HEADERS }
+    )
+  }
+
+  type DedupeRow = {
+    date: Date
+    instrument: string
+    outcome: string
+    dollarAmount: number
+    tradeType: string
+  }
+  const dedupeKey = (r: DedupeRow) =>
+    `${r.date.getTime()}|${r.instrument}|${r.outcome}|${r.dollarAmount}|${r.tradeType}`
+
   const existing = await prisma.extensionTrade.findMany({
     where: { memberKey, date: { in: rows.map((r) => r.date) } },
-    select: { date: true, instrument: true, outcome: true, dollarAmount: true },
+    select: { date: true, instrument: true, outcome: true, dollarAmount: true, tradeType: true },
   })
-  const dedupeKey = (r: { date: Date; instrument: string; outcome: string; dollarAmount: number }) =>
-    `${r.date.getTime()}|${r.instrument}|${r.outcome}|${r.dollarAmount}`
   const seen = new Set(existing.map(dedupeKey))
   const toInsert = rows.filter((r) => !seen.has(dedupeKey(r)))
 
@@ -107,6 +134,7 @@ export async function POST(req: NextRequest) {
   return NextResponse.json(
     {
       ok: true,
+      mode: 'append',
       inserted: created.count,
       duplicates: rows.length - toInsert.length,
       skipped: trades.length - rows.length,
