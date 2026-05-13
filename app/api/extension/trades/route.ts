@@ -32,7 +32,13 @@ export function OPTIONS() {
 }
 
 export async function POST(req: NextRequest) {
-  let body: { memberKey?: string; memberName?: string | null; trades?: IncomingTrade[] }
+  let body: {
+    memberKey?: string
+    memberName?: string | null
+    memberEmail?: string | null
+    installId?: string | null
+    trades?: IncomingTrade[]
+  }
   try {
     body = await req.json()
   } catch {
@@ -41,6 +47,8 @@ export async function POST(req: NextRequest) {
 
   const memberKey = body.memberKey?.trim()
   const memberName = body.memberName ?? null
+  const memberEmail = body.memberEmail?.trim() || null
+  const installId = body.installId?.trim() || null
   const trades = Array.isArray(body.trades) ? body.trades : []
 
   if (!memberKey) {
@@ -64,6 +72,8 @@ export async function POST(req: NextRequest) {
       return {
         memberKey,
         memberName,
+        memberEmail,
+        installId,
         date,
         instrument: String(t.instrument),
         outcome,

@@ -34,24 +34,24 @@ model Session {
 }
 
 model User {
-  id                 String              @id @default(cuid())
-  name               String?
-  email              String?             @unique
-  emailVerified      DateTime?
-  image              String?
-  password           String?
-  role               String              @default("user")
-  isActive           Boolean             @default(true)
-  accounts           Account[]
-  sessions           Session[]
-  trades             Trade[]
-  journalEntries     JournalEntry[]
-  aiConversations    AIConversation[]
-  brokerAccounts     BrokerAccount[]
-  copyTradingConfig  CopyTradingConfig?
-  copyTradeLogs      CopyTradeLog[]
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
+  id                String             @id @default(cuid())
+  name              String?
+  email             String?            @unique
+  emailVerified     DateTime?
+  image             String?
+  password          String?
+  role              String             @default("user")
+  isActive          Boolean            @default(true)
+  accounts          Account[]
+  sessions          Session[]
+  trades            Trade[]
+  journalEntries    JournalEntry[]
+  aiConversations   AIConversation[]
+  brokerAccounts    BrokerAccount[]
+  copyTradingConfig CopyTradingConfig?
+  copyTradeLogs     CopyTradeLog[]
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
 }
 
 model VerificationToken {
@@ -88,11 +88,11 @@ model Trade {
   tags            String[] @default([])
   status          String   @default("CLOSED")
   // Simplified journal fields
-  outcome         String?  // WIN or LOSS
-  dollarAmount    Float?   // dollar amount won or lost
+  outcome         String? // WIN or LOSS
+  dollarAmount    Float? // dollar amount won or lost
   startingBalance Float?
   endingBalance   Float?
-  emotionBefore   String?  // confident, neutral, anxious, fearful, excited
+  emotionBefore   String? // confident, neutral, anxious, fearful, excited
   emotionDuring   String?
   emotionAfter    String?
   committed       Boolean? // accepted the commitment card
@@ -182,6 +182,8 @@ model ExtensionTrade {
   id           String   @id @default(cuid())
   memberKey    String
   memberName   String?
+  memberEmail  String?
+  installId    String?
   date         DateTime
   instrument   String
   outcome      String
@@ -201,6 +203,7 @@ model ExtensionTrade {
   createdAt    DateTime @default(now())
 
   @@index([memberKey])
+  @@index([installId])
   @@index([date])
   @@index([createdAt])
   @@index([tradeType])
